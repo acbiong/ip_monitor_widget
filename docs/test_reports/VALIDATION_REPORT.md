@@ -5,9 +5,9 @@
 ## 验证对象
 
 - 文件：`dist/DesktopMonitor-deepin25-x86_64`
-- 应用版本：`0.8.0+build.20260920.1`
-- 构建源码分支：`feature/public-ip-refresh-interval`
-- 构建源码提交：`ae9e036a0597a35bed418ad87be91d8d9ebb5cdf`（自动递增构建号之前工作树干净）
+- 应用版本：`0.9.0+build.20260920.1`
+- 构建源码分支：`feature/login-autostart`
+- 构建源码提交：`3dd3dc957a19465b892a6582e7d2f3f69d367679`（自动递增构建号之前工作树干净）
 - 目标：deepin 25、x86_64、glibc 2.38 或更高、X11 或可用的 XWayland
 - 传输包：`dist/DesktopMonitor-deepin25-x86_64.tar.gz`
 - 校验值：见 `dist/SHA256SUMS` 和 `docs/BUILD_MANIFEST.json`
@@ -24,6 +24,7 @@
 | 公网 DNS 兼容 | 回归通过 | 本次 13 项 DNS/HTTPS 隔离测试通过；0.7.1 的既往实机查询结果见 PUBLIC_IP_DNS_REPORT.md，本次未重复访问公网回显服务 |
 | 策略路由兼容 | 回归通过 | 19 项策略判定测试通过；0.7.2 的无线菜单实机结果见 ROUTE_POLICY_REPORT.md，本轮只读默认出口为有线网卡 |
 | 公网获取间隔 | 通过 | 10 项配置/定时更新测试及单文件预览、默认恢复、保存/取消同步检查通过 |
+| 用户自启动 | 通过（临时目录） | 默认关闭、待保存提交、保存启用、取消及禁用检查通过；desktop 格式与特殊路径启动解析通过，未执行真实注销登录 |
 | 清空外部环境自检 | 通过 | 清空 `PATH`、`PYTHONPATH`、`PYTHONHOME`、外部 Qt 插件路径后运行，结果保存在 `docs/test_reports/PACKAGE_SELF_TEST.json` |
 | 图形启动冒烟测试 | 通过 | 在隔离临时目录中运行 `--smoke-test`，验证图标、窗口可见、默认路由检测、后台进程链路和退出清理，结果保存在 `docs/test_reports/PACKAGE_SMOKE_TEST.json` |
 | 原生依赖审计 | 通过 | `NATIVE_DEPENDENCIES.json` 中记录的 ELF 依赖无缺失外部库，最低 GLIBC 为 2.38 |
@@ -36,6 +37,10 @@
 - `route_menu_readonly: true`
 - `public_ip_interval_preview: true`
 - `public_ip_interval_default: true`
+- `autostart_default_off: true`
+- `autostart_saved: true`
+- `autostart_cancelled: true`
+- `autostart_disabled: true`
 - `settings_black_text: true`
 - `settings_style_isolated: true`
 - `settings_fixed_size: true`
@@ -81,3 +86,5 @@ chmod +x DesktopMonitor-deepin25-x86_64
 0.7.2 策略路由评估新增 19 项回归，总计 60 项测试通过；当前网络只读验证无线菜单解除误禁用。未进行真实双网卡切换，不把此前 0.7.1 的公网实测冒充本轮重测。详情见 ROUTE_POLICY_REPORT.md。
 
 0.8.0 全部 70 项测试通过。公网地址变化使用模拟服务和加速 Qt 定时器验证，不修改真实公网出口。单文件新增间隔设置测试使用临时配置，无公网请求；详情见 PUBLIC_IP_INTERVAL_REPORT.md。
+
+0.9.0 全部 90 项回归通过。自启动仅在临时配置目录验证；系统 Gio 实际解析并启动特殊字符路径测试脚本成功。未注册用户真实自启动、未注销/重启桌面；详情见 AUTOSTART_REPORT.md。

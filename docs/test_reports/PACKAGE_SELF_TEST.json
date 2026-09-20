@@ -1,13 +1,13 @@
 {
-  "application_version": "0.8.0+build.20260920.1",
+  "application_version": "0.9.0+build.20260920.1",
   "git": {
-    "branch": "feature/public-ip-refresh-interval",
-    "commit": "ae9e036a0597a35bed418ad87be91d8d9ebb5cdf",
-    "commit_short": "ae9e036a0597",
+    "branch": "feature/login-autostart",
+    "commit": "3dd3dc957a19465b892a6582e7d2f3f69d367679",
+    "commit_short": "3dd3dc957a19",
     "dirty": false
   },
   "build": {
-    "built_at": "2026-09-20T10:15:48.493773+00:00",
+    "built_at": "2026-09-20T10:43:59.584428+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",

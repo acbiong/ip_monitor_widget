@@ -2,7 +2,7 @@
   "binary": "DesktopMonitor-deepin25-x86_64",
   "elf_files_checked": 164,
   "archive_entries": 422,
-  "uncompressed_bytes": 151591108,
+  "uncompressed_bytes": 151596988,
   "minimum_glibc_from_symbols": "2.38",
   "external_libraries": [
     "libc.so.6",
