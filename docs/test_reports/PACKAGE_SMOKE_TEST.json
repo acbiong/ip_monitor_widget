@@ -1,5 +1,5 @@
 {
-  "application_version": "0.7.2+build.20260920.1",
+  "application_version": "0.8.0+build.20260920.1",
   "route_menu_readonly": true,
   "about_fields": true,
   "about_icon": true,
@@ -9,10 +9,12 @@
   "about_fixed_size": true,
   "about_open_close": true,
   "settings_preview": true,
+  "public_ip_interval_preview": true,
   "settings_black_text": true,
   "settings_style_isolated": true,
   "settings_fixed_size": true,
   "settings_restore_defaults": true,
+  "public_ip_interval_default": true,
   "settings_cancelled": true,
   "settings_saved": true,
   "settings_open_close": true,
@@ -20,7 +22,7 @@
   "window_visible": true,
   "routes": {
     "ipv4": [
-      "wlp0s20f3"
+      "enx6c1ff71d8ab6"
     ],
     "ipv6": []
   },

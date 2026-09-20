@@ -28,3 +28,9 @@
 测试使用临时 QSettings 和模拟/空地址查询，不改变真实用户配置、不访问公网或修改网络。公网 IP 变化更新通过模拟服务返回不同公网地址验证，未人为修改真实运营商/NAT 出口。
 用户配置的是触发周期；在途查询/重试会跳过重叠触发，公网服务响应延迟可能超过周期。不承诺实时发现运营商变化。
 单文件构建、自检和图形验证见 BUILD_MANIFEST、PACKAGE_SELF_TEST、PACKAGE_SMOKE_TEST 与 VALIDATION_REPORT。
+
+## 最终单文件验证
+
+`0.8.0+build.20260920.1` 在临时工作目录、`PATH=/nonexistent` 且清除外部 Python/Qt 路径的真实 X11 环境执行 `--self-test` 和 `--smoke-test`，均退出 0、`ok=true`。
+`public_ip_interval_preview`、`public_ip_interval_default`、`settings_saved`、`settings_cancelled` 全部 true；固定尺寸、黑色文字、关于页、默认出口读取和退出清理仍通过。
+版本和干净源码快照一致，传输包执行权限及 SHA256 校验通过。未访问公网回显服务或修改真实用户设置。
