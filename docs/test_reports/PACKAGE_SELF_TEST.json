@@ -1,13 +1,13 @@
 {
-  "application_version": "0.6.1+build.20260920.1",
+  "application_version": "0.6.2+build.20260920.1",
   "git": {
-    "branch": "fix/about-dialog-layout",
-    "commit": "1220d836ed1914e00284301fef0b8a703a0e73c5",
-    "commit_short": "1220d836ed19",
+    "branch": "fix/settings-dialog-style-size",
+    "commit": "3b890eb720716fcbe41b631e16bad8b0147dcdc7",
+    "commit_short": "3b890eb72071",
     "dirty": false
   },
   "build": {
-    "built_at": "2026-09-20T05:52:47.647149+00:00",
+    "built_at": "2026-09-20T06:03:28.990257+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",

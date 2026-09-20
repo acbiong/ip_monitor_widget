@@ -33,3 +33,5 @@
 
 最终构建信息见 `../BUILD_MANIFEST.json`，自检与 X11 冒烟结果见
 `PACKAGE_SELF_TEST.json`、`PACKAGE_SMOKE_TEST.json` 和 `VALIDATION_REPORT.md`。
+
+最终单文件 `0.6.2+build.20260920.1` 在临时工作目录、`PATH=/nonexistent` 且清除外部 Python/Qt 插件路径的真实 X11 环境下，`--self-test` 和 `--smoke-test` 均返回 0，全部设置项检查及总结果均为 true。版本与干净源码 Git 快照一致；SHA256 校验和与压缩包执行权限检查通过。
