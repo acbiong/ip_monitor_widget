@@ -45,8 +45,8 @@ CPU 为 `cpu_percent(interval=None)` 的连续采样值；首次初始化建立�
 
 - 直连阶段总协作预算 2.5 秒；每个地址族最多选择一个源地址，优先 IPv4，然后 IPv6。
 - 通过 urllib3 连接池 `source_address=(local_ip, 0)` 绑定本地源地址，Linux 还设置 `SO_BINDTODEVICE` 绑定网卡设备，直连时禁用环境代理。设备绑定失败不会静默降级为未绑定连接。
-- `interface_dns.py` 使用系统配置的非回环、同地址族 DNS 服务器，通过绑定相同设备及源地址的 UDP 套接字解析 A/AAAA；各服务器分摊本次解析预算。TCP 建连时使用解析出的地址，随后恢复原域名用于 TLS 证书校验、SNI 和 HTTP Host，不禁用证书验证。
-- 系统仅有本机 DNS 代理或没有同地址族的外部 DNS 时保留系统解析；此路径依然受系统 DNS 路由影响，并受进程看门狗约束。程序不更改系统 DNS，也不添加额外公共 DNS 服务器。
+- `interface_dns.py` 使用系统配置的非回环、同地址族 DNS 服务器，通过绑定相同设备及源地址的 UDP 套接字解析 A/AAAA；各服务器分摊最多一半解析预算，另一半预留给系统 DNS 回退。TCP 建连时使用解析出的地址，随后恢复原域名用于 TLS 证书校验、SNI 和 HTTP Host，不禁用证书验证。
+- 设备绑定解析失败、仅有回环 DNS 代理或没有同地址族外部 DNS 时，在剩余总预算内调用系统配置的 dnspython Resolver.resolve，指定 lifetime 和 search=False；不调用无独立超时的 getaddrinfo。此路径兼容 Tailscale 等非回环 DNS 代理，仍受进程看门狗约束。程序不更改系统 DNS，也不添加额外公共 DNS 服务器。
 - 连接超时上限 0.6 秒、读超时上限 1 秒，并按剩余预算缩短。
 - requests 的读/连接超时并不保证 DNS 或整次请求准时结束。因此父进程从任务启动起另设 **6000 ms 看门狗**，超时杀掉该子进程。本网卡任务失败即提交 failed，不等待其他网卡是否成功。
 - 6 秒针对**每个已启动任务**，不含排队；N 张网卡首轮最坏需约 `ceil(N/4) × 6 秒` 加进程和事件调度开销，不作实时系统级时限保证。
@@ -72,7 +72,7 @@ flowchart TD
     View --> Service[public_ip_service.py 异步任务调度]
     Service -->|QProcess stdin/stdout JSON| Child[public_ip_lookup.py 子进程]
     Child --> Resolver[interface_dns.py 设备DNS解析]
-    Resolver -->|绑定设备的UDP查询| DNS[系统配置的DNS服务器]
+    Resolver -->|优先设备绑定/限时系统回退| DNS[系统配置的DNS服务器]
     Child -->|HTTPS GET| Remote[公网地址回显服务]
     View --> Utils[utils.py 格式化与签名]
     Service --> Utils
@@ -89,7 +89,7 @@ flowchart TD
 | `utils.py` | 数据格式化与稳定签名 | 速率、网卡列表 | 文本、元组，无 I/O |
 | `network.py` | 枚举在线网卡 | OS 网络状态 | 网卡快照，无外网访问 |
 | `default_route.py` | 默认出口选择、命令超时及回收 | ip 命令 JSON 路由列表 | IPv4/IPv6 设备名快照，无外网请求 |
-| `interface_dns.py` | 绑定设备进行域名解析 | 域名、源地址、设备、超时 | 目标地址列表，DNS I/O |
+| `interface_dns.py` | 设备绑定解析及限时系统 DNS 回退 | 域名、源地址、设备、超时 | 目标地址列表，DNS I/O |
 | `public_ip_lookup.py` | 单网卡公网 HTTP 查询 | JSON 网卡对象 | JSON 查询结果，HTTPS I/O |
 | `public_ip_service.py` | 限流、排队、超时、代次隔离 | 网卡快照 | Qt 结果信号，管理子进程 |
 | `cpu_temperature.py` | 识别 CPU 温度 | psutil、thermal 文件 | 温度文本或“不可用” |
@@ -99,6 +99,8 @@ flowchart TD
 | `monitor_widget.py` | 渲染、拖动、设置事务和协调 | 所有业务数据、交互事件 | 主窗体、服务调用 |
 | `tray_controller.py` | 菜单与应用清理接线 | QApplication、可选注入依赖 | 托盘图标、主窗体 |
 | `package_diagnostics.py` | 单文件运行诊断 | 自检/GUI 测试入口 | JSON 检查结果、退出码；GUI 测试使用临时配置 |
+| `about_dialog.py` | 关于页面 | 托盘“关于”动作 | 版本、开发者、Git 和编译信息 |
+| `build_info.py` | 读取构建元数据 | 源码 Git 或冻结包 BUILD_INFO.json | Git/编译信息字典 |
 | `version.py`、`VERSION.json` | 运行时版本读取 | 启动参数/版本文件 | 当前应用版本字符串 |
 | `packaging/version_manager.py` | 基础版本和编译后缀管理 | `--set-base-version`、`--bump-build` | 更新后的版本 JSON |
 
@@ -356,7 +358,7 @@ Content-Type: text/plain
 
 ### 7.3 设备 DNS 查询
 
-使用 dnspython 构造标准 DNS A/AAAA 递归查询，通过 UDP 53 请求系统配置的 DNS 服务器；DNS 套接字设为非阻塞，并绑定源地址和设备。查询库校验响应，接受解析后的同地址族记录；无结果、超时、协议错误或截断响应则尝试下一个服务器，最终失败作为网卡查询失败处理。此模块不提供 DNS 服务，不修改 `/etc/resolv.conf`，不请求额外公共解析服务。使用系统本机代理时的回退边界见 2.3。
+使用 dnspython 构造标准 DNS A/AAAA 递归查询，通过 UDP 53 请求系统配置的 DNS 服务器；DNS 套接字设为非阻塞，并绑定源地址和设备。查询库校验响应，接受解析后的同地址族记录；无结果、超时、协议错误或截断响应则尝试下一个服务器，设备解析失败后在剩余预算内由系统解析器查询（必要时由解析库使用 TCP），全部失败才作为网卡查询失败处理。此模块不提供 DNS 服务，不修改 `/etc/resolv.conf`，不请求额外公共解析服务。使用系统本机代理时的回退边界见 2.3。
 
 ## 8. 公网查询流程图
 
@@ -441,7 +443,7 @@ QSettings 命名空间保持 `Biong / IPMonitorWidget`。Linux 通常保存为 `
 
 ## 12. 单文件启动与交付协议
 
-入口先检查内部/诊断参数，再导入 GUI：`--version` 输出版本；`--public-ip-lookup` 调用查询子进程 main，不创建 QApplication；无参数时启动监视器；`--self-test` 和 `--smoke-test` 返回 JSON 诊断结果及 0/1 退出码。其余业务信号、网卡任务 JSON、配置命名空间均保持不变。
+入口先检查内部/诊断参数，再导入 GUI：`--version` 输出版本；`--public-ip-lookup` 调用查询子进程 main，不创建 QApplication；无参数时启动监视器；`--self-test` 和 `--smoke-test` 返回 JSON 诊断结果及 0/1 退出码。其余业务信号、网卡任务 JSON、配置命名空间均保持不变。 托盘菜单的“关于”动作创建 AboutDialog，不新增网络端口或外部控制协议。
 
 运行时钩子将 Qt 插件路径指向冻结资源，禁用继承的外部 Qt 主题/样式插件，使用 Fusion 和 xcb；offscreen/minimal 仍可用于测试。普通二维界面禁用多余的 XCB GL 集成。环境变化只作用于本进程及其子进程，不修改系统环境。
 
@@ -461,3 +463,84 @@ flowchart TD
 ```
 
 资源和依赖校验结果见 BUILD_MANIFEST.json、NATIVE_DEPENDENCIES.json 和 `docs/test_reports/`；版本状态见 `src/VERSION.json`，版本规则见 CHANGELOG.md。不能将同机空白环境测试表述成已在所有其他 deepin 版本和硬件上验证。
+
+## 13. 关于页面与 Git 快照协议
+
+- `TrayController._show_about()` 由“关于”菜单动作触发，在独立模态循环中显示 AboutDialog，结束时 `deleteLater()` 释放，不积累隐藏子窗口。
+- `AboutDialog(parent)` 输入主窗口父对象，只读展示数据。使用应用默认字体和调色板，不继承监视器白色大字样式或透明度。信息标签为纯文本，可选中复制，不执行分支名中的富文本。
+- `build_info.read_git_info(project: Path) -> dict` 输出 `branch`、`commit`、`commit_short`（字符串）及 `dirty`（true/false/null）。无 Git/无仓库/超时不崩溃；状态命令失败返回 null。未跟踪和已暂存修改都计入状态，忽略文件遵循 Git 规则。
+- `build_info.load_build_info() -> dict` 输出 `developer`、`git`、`build`，冻结模式还包含 `application_version`。源码模式读取当前 Git；冻结模式仅读取资源中的 BUILD_INFO.json，失败使用未知状态，绝不调用目标电脑 Git。
+- `generate_build_info.py --project PATH --output PATH --version-file PATH [--bump-build]` 输出 UTF-8 JSON 文件和相同 stdout JSON。`--bump-build` 只接受项目版本文件，先记录 Git，再递增编译号，避免把构建本身当成源码变更。
+- `build` 字段包含 `built_at`（UTC ISO 8601）、`target`、`architecture`、`python`、`packager` 和 `git_snapshot_stage`。BUILD_INFO.json 位于构建缓存；PyInstaller 内置后目标机无需 `.git` 或 Git。
+- 自检额外验证内置元数据版本一致；冒烟测试通过真实托盘动作连续两次打开/关闭关于页，检查内容、图标、样式和对象释放。
+
+### 0.6.1 关于窗口显示协议
+
+`AboutDialog` 标题固定为“关于”；名称标签使用 `Qt.AlignCenter`，根布局使用 `QLayout.SetFixedSize` 按内容确定固定窗口尺寸，适配系统字体而不允许手动缩放。输入输出和关闭行为不变。`--smoke-test` 新增布尔字段 `about_title`、`about_name_centered`、`about_fixed_size`，任一失败会使总结果 `ok` 为 false 并返回非零退出码。
+
+### 0.6.2 设置窗口显示协议
+
+`SettingsDialog` 使用局部对象名选择器覆盖父窗口样式，标签、输入和按钮均为黑字，窗口背景为浅色且完全不透明。字号取应用字体，不跟随主窗口预览；根布局使用 `QLayout.SetFixedSize` 按控件内容确定固定尺寸。`preview_changed(dict)`、`values_applied(dict)` 与位置持久化协议保持不变。
+
+`--smoke-test` 新增 `settings_preview`、`settings_black_text`、`settings_style_isolated`、`settings_fixed_size`、`settings_restore_defaults`、`settings_cancelled`、`settings_saved`、`settings_open_close` 布尔字段；实际托盘动作验证取消和保存两条路径，任一检查失败会使总结果为 false。测试使用临时配置，不修改用户配置。
+
+## 14. 默认出口控制协议（0.7.0）
+
+### 14.1 模块
+
+| 模块 | 输入 | 输出/职责 |
+|---|---|---|
+| `route_menu.RouteMenu` | 托盘菜单、托盘对象、监视器、可注入 service | 二级菜单、按真实地址族勾选、禁用原因、系统通知；仅明确点击触发写任务 |
+| `route_switch_service.RouteSwitchService` | `refresh()`、`switch(name, uuid)` | `result(dict)`：枚举/切换结果；`finished(dict)`：切换完成通知；QProcess 并发数为 1 |
+| `route_switch_worker` | stdin 单个 JSON | stdout 单个 JSON；读系统 D-Bus 与主路由表；经授权临时重应用和检查点回滚 |
+| `src/tests/test_route_switch.py` | 模拟路由、模拟 D-Bus/菜单对象 | unittest 成功/失败；不写真实网络 |
+
+### 14.2 内部进程接口
+
+`main.py --default-route-control` 或单文件同名参数，仅用于内部任务，不创建 GUI。
+输入最多 8193 字节：`{"action":"list"}` 或 `{"action":"switch","name":"网卡名称","uuid":"菜单读取的活动连接 UUID"}`。
+无任意命令、网关或脚本字段；不执行 shell。
+
+成功响应：`{"ok":true,"choices":[...],"current":{"ipv4":[...],"ipv6":[...]},"message":"可选说明"}`。
+每个 choice 含 `name`、`ips`、`uuid`、`families`（已有默认路由族）、`default_for`（当前出口族）、`enabled`、`reason`。
+失败响应：`{"ok":false,"message":"原因及回滚状态"}`。成功/失败退出码为 0/1。
+枚举内部限时 10 秒，切换 65 秒；父进程看门狗分别为 12/75 秒，响应上限 256 KiB。退出终止子进程，不阻塞 GUI 等待认证。
+
+### 14.3 修改范围与事务
+
+1. 读取主表默认路由/策略规则、NetworkManager 设备/活动连接/权限；仅在线有效 IP 网卡进入菜单。
+2. 检查 UUID、受管理状态、已有默认路由、权限及 VPN/多路径限制；策略规则按第 16 节评估，不因规则存在就全部禁用。
+3. 获取 `GetAppliedConnection(0)` 和配置版本；复制配置，仅修改目标地址族的 route-metric 以及显式默认 route-data metric。
+4. 目标 metric 设为 1；若竞争出口 metric ≤1，临时设为 100。目标已经独占默认出口的地址族不改动。连接路由优先级也会遵循 route-metric，特定静态非默认路由的显式 metric 不变。
+5. 对涉及设备 `CheckpointCreate(...,90,0)`，经系统授权调用 `Reapply(settings,version,1)`；标志 1 保留外部 IP 配置，要求 NM 1.42+。不调用连接档案 Update/Save。
+6. 重新枚举并确认目标 UUID、可用性及真实默认出口；成功释放检查点。失败立即回滚并检查返回状态，回滚未确认时明确告知用户。进程意外消失仍由系统检查点超时兜底。
+
+目标缺少某个地址族的默认路由时不迁移该地址族，不创建网关；不支持的复杂网络保持只读。自动回滚并不等于任何环境下都能保证网络恢复，接口必须保留失败提示。
+
+### 14.4 诊断
+
+`--self-test` 新增 `route_control_entry` 与 dbus-next 版本；仅发送无效操作，不访问总线。
+`--smoke-test` 新增 `route_menu_readonly`，真实读取菜单候选但不切换；退出清理检查包含出口服务子进程。
+
+## 15. DNS 回退协议（0.7.1）
+
+`resolve_interface_host(host, local_ip, interface_name, timeout) -> list[str]` 的调用接口不变。
+设备绑定 DNS 使用至多 timeout/2，各服务器均分剩余设备预算；绑定不可达或没有合适服务器时，剩余总预算交给系统配置解析器，`lifetime=remaining, search=False`。A/AAAA 由源地址族决定，系统 DNS 传输不必与记录地址族相同。所有路径失败转换为 socket.gaierror，便于现有 HTTPS 层继续轮换服务；不扩展父进程 6 秒看门狗。
+
+这是**DNS 路径回退，不是公网 IP 查询出口回退**。SourceAddressAdapter 的源地址、SO_BINDTODEVICE、TLS 证书验证、SNI/Host、禁止代理和禁止重定向保持不变。接口不添加未配置的公共 DNS，不修改系统解析配置，不跨网卡复用公网结果。
+
+## 16. 策略路由评估接口（0.7.2）
+
+新增独立模块 `route_policy.py`，只进行只读判断，不拥有网络写权限。
+
+| 接口 | 输入 | 输出 |
+|---|---|---|
+| `table_name(value)` | ip JSON 的表名或表号 | 255/254/253 统一为 local/main/default，其他表保留字符串 |
+| `table_preserves_default(routes, version)` | 路由数组、地址族 4/6 | bool：局部网段或 throw 不接管默认出口；默认、/1、合并覆盖全网及未知数据返回 false |
+| `policy_allows_main(rules, read_table, version)` | 规则数组、读取指定表的回调、地址族 | bool：未标记流量能到达主表且前序表不接管默认出口；I/O 异常不吞掉 |
+
+按规则优先级评估：保留 local；不匹配未标记流量的非零 fwmark 规则不阻止主表切换；对于优先于 main 的自定义表，读取并检查完整路由数组。仅局部网段的路由不阻止主表切换，原策略及其目的网段完全不改。一个地址族内重复表只查询一次，最多读取 8 个表；未知选择器、缺少 main、默认接管或非法结构保守拒绝。
+
+`read_kernel_routes()` 仍返回 `(routes, safe)`；除原主表默认路由/规则读取外，按需使用 `ip -j -4/-6 route show table TABLE` 读取相关策略表。菜单和事务使用同一个判定，切换后复核仍生效。JSON 协议不变；菜单 tooltip 及结果文字明确“主路由表”，而不是承诺所有策略流量都已改道。
+
+本次支持当前 Tailscale 普通组网规则，并非移除 VPN 安全限制：出口节点或未知复杂策略仍应使用系统网络设置，现有 NetworkManager 活动 VPN 限制不变。

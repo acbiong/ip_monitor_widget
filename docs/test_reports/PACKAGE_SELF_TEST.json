@@ -1,5 +1,19 @@
 {
-  "application_version": "0.5.1+build.20260920.2",
+  "application_version": "0.7.2+build.20260920.1",
+  "git": {
+    "branch": "fix/default-route-policy-compatibility",
+    "commit": "7aa3e1329fe9b5ab920eb8d606868d1df6556114",
+    "commit_short": "7aa3e1329fe9",
+    "dirty": false
+  },
+  "build": {
+    "built_at": "2026-09-20T07:29:39.016298+00:00",
+    "target": "deepin 25 x86_64, X11 or available XWayland",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "packager": "PyInstaller 6.22.3",
+    "git_snapshot_stage": "自动递增构建号之前（包括全部未提交修改）"
+  },
   "frozen": true,
   "python": "3.12.13",
   "qt": "5.15.19",
@@ -9,15 +23,18 @@
     "psutil": "7.2.2",
     "requests": "2.34.2",
     "dnspython": "2.8.0",
-    "certifi": "2026.7.22"
+    "certifi": "2026.7.22",
+    "dbus-next": "0.2.3"
   },
   "checks": {
+    "build_metadata": true,
     "icon": true,
     "ca_certificates": true,
     "tls_context": true,
     "xcb_plugin": true,
     "bundled_route_tool": true,
-    "background_entry": true
+    "background_entry": true,
+    "route_control_entry": true
   },
   "ok": true
 }

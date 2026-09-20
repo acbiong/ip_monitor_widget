@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QSlider,
     QSpinBox,
     QVBoxLayout,
@@ -41,10 +42,21 @@ class SettingsDialog(QDialog):
         self.setWindowModality(Qt.ApplicationModal)
         self.setMinimumWidth(380)
         self.setWindowIcon(QIcon(str(ICON_PATH)))
-        self.setFont(QApplication.font())
+        font = QApplication.font()
+        font_size = f"{font.pixelSize()}px" if font.pixelSize() > 0 else f"{font.pointSizeF()}pt"
+        self.setFont(font)
         self.setWindowOpacity(1.0)
         self.setAttribute(Qt.WA_TranslucentBackground, False)
-        self.setStyleSheet("")
+        # 空样式表不能阻止父窗口的白字样式继承，设置页单独使用黑字浅底。
+        self.setObjectName("SettingsDialog")
+        self.setStyleSheet(
+            "QDialog#SettingsDialog { background-color: #f5f5f5; color: #000000; }"
+            "QDialog#SettingsDialog QWidget { color: #000000; "
+            f"font-size: {font_size}; font-weight: normal; }}"
+            "QDialog#SettingsDialog QSpinBox { background-color: #ffffff; "
+            "selection-background-color: #cce8ff; selection-color: #000000; }"
+            "QDialog#SettingsDialog QPushButton { background-color: #e6e6e6; }"
+        )
         self._build_controls(values)
         self._connect_signals()
 
@@ -90,6 +102,8 @@ class SettingsDialog(QDialog):
         buttons.button(QDialogButtonBox.RestoreDefaults).clicked.connect(self.restore_defaults)
 
         layout = QVBoxLayout(self)
+        # 依据控件和系统字体计算固定尺寸，禁止手动缩放而不写死高度。
+        layout.setSizeConstraint(QLayout.SetFixedSize)
         layout.addLayout(form)
         layout.addWidget(buttons)
 

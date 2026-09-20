@@ -1,12 +1,15 @@
 # 项目文件与目录清单
 
-> 生成日期：2026-09-20；共 183 个文件夹、185 个文件。
+> 生成日期：2026-09-20；共 187 个文件夹、204 个文件。
 
-本表覆盖项目根目录下的每一个文件夹和文件，包括第三方许可归档、测试报告、单文件程序和传输包。新增或删除项目文件后应重新生成本表。
+覆盖项目文件、资源、报告、发布产物和 Git 顶层目录；`.git` 内部对象及忽略的编译缓存不展开。
 
 | 相对路径 | 名称 | 类型 | 文件/目录说明 |
 |---|---|---|---|
-| . |  | 文件夹 | 项目根目录，包含源代码、文档、测试清单和发布产物。 |
+| . | ip_monitor_widget | 文件夹 | 项目根目录，包含源代码、文档、测试清单和发布产物。 |
+| .git | .git | 文件夹 | Git 本地版本库元数据目录；表格不展开其中的对象文件。 |
+| .gitignore | .gitignore | 文件 | Git 忽略规则，排除 Python 缓存、构建缓存、临时文件和 dist 发布输出。 |
+| AGENTS.md | AGENTS.md | 文件 | 项目协作规则，要求独立任务分支、提交、验证与真实构建快照。 |
 | README.md | README.md | 文件 | 项目总入口，提供目录导航和核心文档链接。 |
 | dist | dist | 文件夹 | 可转移的单文件程序、压缩包和校验和目录。 |
 | dist/DesktopMonitor-deepin25-x86_64 | DesktopMonitor-deepin25-x86_64 | 文件 | 面向 deepin 25 x86_64 的 PyInstaller 单文件可执行程序。 |
@@ -17,6 +20,7 @@
 | docs/BUILD_MANIFEST.json | BUILD_MANIFEST.json | 文件 | 本次构建版本、平台、依赖和产物校验清单。 |
 | docs/CHANGELOG.md | CHANGELOG.md | 文件 | 版本规则和历史变更记录。 |
 | docs/CODE_REVIEW.md | CODE_REVIEW.md | 文件 | 代码审查结论、优化记录、回归结果和限制。 |
+| docs/GIT_WORKFLOW.md | GIT_WORKFLOW.md | 文件 | 本地仓库、分支提交、忽略规则及构建前 Git 快照流程。 |
 | docs/NATIVE_DEPENDENCIES.json | NATIVE_DEPENDENCIES.json | 文件 | 单文件 ELF 原生依赖和 GLIBC 审计结果。 |
 | docs/PACKAGING.md | PACKAGING.md | 文件 | 单文件交付方式、依赖范围、兼容边界和打包说明。 |
 | docs/README.md | README.md | 文件 | 详细构建、运行、使用、版本和故障排查指南。 |
@@ -28,8 +32,13 @@
 | docs/test_plan | test_plan | 文件夹 | 测试计划目录，与测试报告分离。 |
 | docs/test_plan/TEST_PLAN.md | TEST_PLAN.md | 文件 | 模块、集成、回归和交付测试计划。 |
 | docs/test_reports | test_reports | 文件夹 | 测试执行结果和交付验证报告目录。 |
+| docs/test_reports/GIT_ABOUT_REPORT.md | GIT_ABOUT_REPORT.md | 文件 | Git 元数据、关于页生命周期与构建快照验证结果。 |
 | docs/test_reports/PACKAGE_SELF_TEST.json | PACKAGE_SELF_TEST.json | 文件 | 单文件无 GUI 依赖与内部入口自检报告。 |
 | docs/test_reports/PACKAGE_SMOKE_TEST.json | PACKAGE_SMOKE_TEST.json | 文件 | 隔离图形会话中的窗口和后台链路冒烟报告。 |
+| docs/test_reports/PUBLIC_IP_DNS_REPORT.md | PUBLIC_IP_DNS_REPORT.md | 文件 | Tailscale DNS 环境公网 IP 查询修复、回归和实机验证记录。 |
+| docs/test_reports/ROUTE_POLICY_REPORT.md | ROUTE_POLICY_REPORT.md | 文件 | 默认出口策略误禁用修复、回归和当前网络只读验证报告。 |
+| docs/test_reports/ROUTE_SWITCH_REPORT.md | ROUTE_SWITCH_REPORT.md | 文件 | 默认出口菜单及切换功能测试结果和未实机切换边界。 |
+| docs/test_reports/SETTINGS_DIALOG_REPORT.md | SETTINGS_DIALOG_REPORT.md | 文件 | 设置页黑字浅底、固定尺寸及预览保存回归报告。 |
 | docs/test_reports/VALIDATION_REPORT.md | VALIDATION_REPORT.md | 文件 | 单文件验证范围、结果和兼容边界报告。 |
 | docs/third_party_licenses | third_party_licenses | 文件夹 | 第三方 Python、Qt 和系统库许可归档目录。 |
 | docs/third_party_licenses/PyQt5-Qt5 | PyQt5-Qt5 | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
@@ -50,6 +59,9 @@
 | docs/third_party_licenses/charset-normalizer/charset_normalizer-3.5.1.dist-info | charset_normalizer-3.5.1.dist-info | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/charset-normalizer/charset_normalizer-3.5.1.dist-info/licenses | licenses | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/charset-normalizer/charset_normalizer-3.5.1.dist-info/licenses/LICENSE | LICENSE | 文件 | 第三方组件许可证或版权声明文件。 |
+| docs/third_party_licenses/dbus-next | dbus-next | 文件夹 | 第三方组件许可证目录。 |
+| docs/third_party_licenses/dbus-next/dbus_next-0.2.3.dist-info | dbus_next-0.2.3.dist-info | 文件夹 | 第三方组件许可证目录。 |
+| docs/third_party_licenses/dbus-next/dbus_next-0.2.3.dist-info/LICENSE | LICENSE | 文件 | 第三方组件许可证或版权声明文件。 |
 | docs/third_party_licenses/dnspython | dnspython | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/dnspython/dnspython-2.8.0.dist-info | dnspython-2.8.0.dist-info | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/dnspython/dnspython-2.8.0.dist-info/licenses | licenses | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
@@ -342,10 +354,12 @@
 | docs/third_party_licenses/urllib3/urllib3-2.8.0.dist-info/licenses/LICENSE.txt | LICENSE.txt | 文件 | 第三方组件许可证或版权声明文件。 |
 | src | src | 文件夹 | 源代码、资源和构建脚本目录。 |
 | src/VERSION.json | VERSION.json | 文件 | 版本状态，保存基础版本、构建号、构建后缀和完整版本。 |
+| src/about_dialog.py | about_dialog.py | 文件 | 固定尺寸、名称居中的关于页面，显示版本、开发者、Git 和编译信息。 |
+| src/build_info.py | build_info.py | 文件 | 运行时读取源码 Git 信息或单文件内置编译信息。 |
 | src/config.py | config.py | 文件 | 应用常量、默认设置、公网服务地址和超时参数。 |
 | src/cpu_temperature.py | cpu_temperature.py | 文件 | 识别并读取 CPU 温度传感器。 |
 | src/default_route.py | default_route.py | 文件 | 读取 IPv4/IPv6 默认路由并选择默认出口网卡。 |
-| src/interface_dns.py | interface_dns.py | 文件 | 绑定指定网卡和源地址执行 DNS 查询。 |
+| src/interface_dns.py | interface_dns.py | 文件 | 设备绑定 DNS 解析及限时系统解析回退，兼容 VPN DNS 代理。 |
 | src/main.py | main.py | 文件 | 应用入口，处理 GUI、诊断、后台查询和版本命令行模式。 |
 | src/monitor_widget.py | monitor_widget.py | 文件 | 桌面监视器主窗口、布局、拖动、置底和内容刷新。 |
 | src/network.py | network.py | 文件 | 枚举在线网卡、过滤有效地址并生成网卡快照。 |
@@ -354,6 +368,7 @@
 | src/packaging/audit.py | audit.py | 文件 | 审计单文件 ELF 依赖、动态库闭包和最低 GLIBC。 |
 | src/packaging/build-requirements.txt | build-requirements.txt | 文件 | 冻结构建所需的锁定 Python 依赖。 |
 | src/packaging/build.sh | build.sh | 文件 | 版本递增、PyInstaller 构建、依赖审计、自检和发布文件生成脚本。 |
+| src/packaging/generate_build_info.py | generate_build_info.py | 文件 | 构建时生成嵌入单文件的 Git 和编译信息快照。 |
 | src/packaging/monitor.spec | monitor.spec | 文件 | PyInstaller 单文件构建配置和内置资源清单。 |
 | src/packaging/release.py | release.py | 文件 | 生成传输包、SHA256、构建清单和第三方许可归档。 |
 | src/packaging/runtime_env.py | runtime_env.py | 文件 | 冻结程序运行时 Qt 插件和图形环境隔离钩子。 |
@@ -363,10 +378,18 @@
 | src/requirements.txt | requirements.txt | 文件 | 源码运行依赖清单。 |
 | src/resources | resources | 文件夹 | 程序图标等运行时资源目录。 |
 | src/resources/icon.svg | icon.svg | 文件 | 系统托盘和窗口使用的 SVG 图标。 |
+| src/route_menu.py | route_menu.py | 文件 | 默认出口二级菜单、真实勾选、禁用原因与切换通知。 |
+| src/route_policy.py | route_policy.py | 文件 | 只读评估策略路由是否接管默认出口，兼容 Tailscale 普通组网规则。 |
+| src/route_switch_service.py | route_switch_service.py | 文件 | 默认出口控制 QProcess 服务，负责并发限制、超时与退出清理。 |
+| src/route_switch_worker.py | route_switch_worker.py | 文件 | NetworkManager 临时默认路由切换与检查点回滚后台模块。 |
 | src/run.sh | run.sh | 文件 | 源码启动脚本。 |
-| src/settings_dialog.py | settings_dialog.py | 文件 | 设置窗口及实时预览、取消回滚和默认值恢复。 |
+| src/settings_dialog.py | settings_dialog.py | 文件 | 黑字浅底、固定尺寸的设置窗口及实时预览、取消回滚和默认值恢复。 |
 | src/settings_store.py | settings_store.py | 文件 | 校验并持久化用户设置、窗口位置和锁定状态。 |
 | src/system_metrics.py | system_metrics.py | 文件 | 采集 CPU、内存、磁盘、流量和温度等系统指标。 |
+| src/tests | tests | 文件夹 | 源代码回归测试；网络写操作均使用模拟对象。 |
+| src/tests/test_interface_dns.py | test_interface_dns.py | 文件 | DNS 代理回退、超时预算和 HTTPS 网卡隔离回归测试。 |
+| src/tests/test_route_policy.py | test_route_policy.py | 文件 | 策略路由分类、默认接管保护和 Tailscale 兼容回归测试。 |
+| src/tests/test_route_switch.py | test_route_switch.py | 文件 | 默认出口规划、授权回滚、菜单与安全边界的隔离单元测试。 |
 | src/tray_controller.py | tray_controller.py | 文件 | 系统托盘菜单、设置窗口、位置恢复和退出清理。 |
 | src/utils.py | utils.py | 文件 | 速率格式化、网络签名和通用辅助函数。 |
 | src/version.py | version.py | 文件 | 运行时读取 VERSION.json 并提供当前完整版本字符串。 |

@@ -1,6 +1,6 @@
 # 单文件交付与目录说明
 
-更新日期：2026-09-20。当前基础版本：`0.5.1`。构建目标：**deepin 25、x86_64、glibc 2.38 或更高、X11 桌面或可用的 XWayland**。
+更新日期：2026-09-20。当前基础版本：`0.7.2`。构建目标：**deepin 25、x86_64、glibc 2.38 或更高、X11 桌面或可用的 XWayland**。
 
 ## 1. 项目分类
 
@@ -9,6 +9,7 @@ ip_monitor_widget/
 ├── src/                         源代码和资源
 │   ├── main.py                  源码/冻结程序共用入口
 │   ├── version.py、VERSION.json  版本读取和版本状态
+│   ├── about_dialog.py、build_info.py 关于页面和编译信息
 │   ├── *.py                     独立功能模块
 │   ├── resources/icon.svg       程序图标
 │   ├── requirements.txt         源码运行依赖
@@ -67,11 +68,11 @@ sha256sum -c SHA256SUMS
 - 原生 `ip` 路由查询工具及所需共享库，不调用目标机器 PATH 中的 ip。
 - 原生库审计中确认需要的 X11/xcb/图形接口库；相关组件的许可文本随资源内置，另在 docs 归档。
 
-准确版本见 `BUILD_MANIFEST.json` 和 `src/VERSION.json`。本次包固定依赖版本，构建脚本不会静默升级到未记录的版本。
+准确版本见 `BUILD_MANIFEST.json`、`src/VERSION.json` 和关于页面。本次包固定依赖版本，构建脚本不会静默升级到未记录的版本。
 
 ### 版本管理
 
-基础版本遵循 SemVer：不兼容变更递增 `MAJOR`，新增兼容功能递增 `MINOR`，BUG 修复/性能/文档/打包修复递增 `PATCH`。每次执行 `src/packaging/build.sh` 会先调用 `src/packaging/version_manager.py --bump-build`，自动递增 `src/VERSION.json` 的构建号，并生成如 `0.5.0+build.20260920.1` 的版本后缀。需要开始新的版本线时执行 `python3 src/packaging/version_manager.py --set-base-version X.Y.Z`，不要手工修改构建后缀。
+基础版本遵循 SemVer：不兼容变更递增 `MAJOR`，新增兼容功能递增 `MINOR`，BUG 修复/性能/文档/打包修复递增 `PATCH`。每次执行 `src/packaging/build.sh` 通过 `generate_build_info.py --bump-build` 先快照 Git 状态，再调用版本管理器自动递增 `src/VERSION.json` 的构建号。版本后缀示例为 `0.6.0+build.20260920.3`。需要开始新的版本线时执行 `python3 src/packaging/version_manager.py --set-base-version X.Y.Z`，不要手工修改构建后缀。Git 快照和报告提交的关系见 `GIT_WORKFLOW.md`。
 
 ### 兼容边界
 
@@ -117,3 +118,9 @@ cd /home/biong/Documents/code/ip_monitor_widget
 PyInstaller 构建环境和系统原生库也影响产物，因此锁定 Python 软件包并不意味着不同系统上生成的二进制逐字节一致；每次发布以生成的 manifest、依赖审计和 SHA256SUMS 为准。
 
 第三方组件的原始许可声明见 `third_party_licenses/` 及单文件内置元数据/许可资源。本次没有替用户源代码新增或选择许可证。
+
+## 0.7.0 默认出口控制依赖
+
+单文件新增内置 `dbus-next==0.2.3`，不依赖目标电脑安装 Python、nmcli 或 dbus-next。
+切换依赖目标系统的 NetworkManager 1.42+、系统 D-Bus 与桌面 Polkit 认证代理；没有这些主机服务时明确提示不可用，其他监测功能仍可使用。
+`--self-test` 使用无效操作验证控制子进程入口，不连接系统总线、不改变路由；`--smoke-test` 额外只读枚举真实网卡。
