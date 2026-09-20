@@ -12,6 +12,7 @@ from dbus_next.aio import MessageBus
 
 from default_route import parse_default_interfaces
 from network import get_network_interfaces
+from route_policy import policy_allows_main
 
 
 NM = "org.freedesktop.NetworkManager"
@@ -32,7 +33,7 @@ def unpack(value):
 
 
 def read_kernel_routes():
-    """读取主路由表和规则，拒绝将 VPN/策略路由误当普通默认出口。"""
+    """读取主表及相关策略表，只在策略接管默认出口或无法安全判定时禁用。"""
     command = str(Path(__file__).parent / "bin/ip") if getattr(sys, "frozen", False) else "ip"
     routes = {}
     safe = True
@@ -43,11 +44,8 @@ def read_kernel_routes():
             return json.loads(result.stdout)
         routes[family] = query(["route", "show", "table", "main", "default"])
         rules = query(["rule", "show"])
-        expected = {0: "local", 32766: "main", 32767: "default"}
-        safe &= all(rule.get("src", "all") == "all"
-                    and rule.get("table") == expected.get(rule.get("priority"))
-                    and not set(rule) - {"priority", "src", "table", "protocol"}
-                    for rule in rules)
+        safe &= policy_allows_main(rules, lambda table: query(["route", "show", "table", table]),
+                                   4 if family == "ipv4" else 6)
         safe &= all("dev" in route and not any(key in route for key in ("nexthops", "nhid"))
                     and route.get("type", "unicast") == "unicast"
                     and route.get("from", "all") in ("all", "0.0.0.0/0", "::/0")
@@ -123,7 +121,7 @@ class NetworkManagerClient:
         manager = await self.properties(ROOT, NM)
         routes, safe = await asyncio.to_thread(read_kernel_routes)
         version = tuple(int(part) for part in manager["Version"].split(".")[:2])
-        reason = "" if safe else "存在策略路由或多路径路由，请使用系统网络设置"
+        reason = "" if safe else "策略接管了默认出口或存在不支持的路由规则，请使用系统网络设置"
         if version < (1, 42):
             reason = "安全切换需要 NetworkManager 1.42 或更新版本"
         for path in manager.get("ActiveConnections", []):
@@ -175,7 +173,7 @@ class NetworkManagerClient:
             raise ValueError("网卡连接已变化，请重新打开菜单后再选择")
         plan, families = switch_plan(routes, name)
         if not plan:
-            return {**snapshot, "message": "所选网卡已是默认出口"}
+            return {**snapshot, "message": "所选网卡已是主路由表默认出口，专用策略路由保持不变"}
         changes = []
         for interface, metrics in plan.items():
             device = devices[interface]
@@ -208,7 +206,7 @@ class NetworkManagerClient:
                 raise RuntimeError(f"切换失败：{error}；回滚未确认：{rollback_error}。请检查系统网络设置。") from error
             raise RuntimeError(f"切换未完成，已回滚：{error}") from error
         labels = "/".join(family.upper() for family in families)
-        return {**latest, "message": f"{labels} 默认出口已切换至 {name}（临时生效，重连后恢复系统配置）"}
+        return {**latest, "message": f"{labels} 主路由表默认出口已切换至 {name}（专用策略路由不变；临时生效，重连后恢复系统配置）"}
 
 
 async def run(request):

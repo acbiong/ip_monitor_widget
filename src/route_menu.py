@@ -54,6 +54,7 @@ class RouteMenu(QObject):
             action.setChecked(bool(choice["default_for"]))
             action.setEnabled(choice["enabled"])
             action.setToolTip(" / ".join(choice["ips"])
+                              + "\n仅切换主路由表默认出口；VPN/专用流量仍遵循原策略规则"
                               + "\n切换可能中断现有连接；临时生效，网络重连后恢复系统配置")
             action.triggered.connect(lambda checked, item=choice, entry=action: self._select(item, entry))
             self.menu.addAction(action)

@@ -1,6 +1,6 @@
 # 项目文件与目录清单
 
-> 生成日期：2026-09-20；共 187 个文件夹、201 个文件。
+> 生成日期：2026-09-20；共 187 个文件夹、204 个文件。
 
 覆盖项目文件、资源、报告、发布产物和 Git 顶层目录；`.git` 内部对象及忽略的编译缓存不展开。
 
@@ -36,6 +36,7 @@
 | docs/test_reports/PACKAGE_SELF_TEST.json | PACKAGE_SELF_TEST.json | 文件 | 单文件无 GUI 依赖与内部入口自检报告。 |
 | docs/test_reports/PACKAGE_SMOKE_TEST.json | PACKAGE_SMOKE_TEST.json | 文件 | 隔离图形会话中的窗口和后台链路冒烟报告。 |
 | docs/test_reports/PUBLIC_IP_DNS_REPORT.md | PUBLIC_IP_DNS_REPORT.md | 文件 | Tailscale DNS 环境公网 IP 查询修复、回归和实机验证记录。 |
+| docs/test_reports/ROUTE_POLICY_REPORT.md | ROUTE_POLICY_REPORT.md | 文件 | 默认出口策略误禁用修复、回归和当前网络只读验证报告。 |
 | docs/test_reports/ROUTE_SWITCH_REPORT.md | ROUTE_SWITCH_REPORT.md | 文件 | 默认出口菜单及切换功能测试结果和未实机切换边界。 |
 | docs/test_reports/SETTINGS_DIALOG_REPORT.md | SETTINGS_DIALOG_REPORT.md | 文件 | 设置页黑字浅底、固定尺寸及预览保存回归报告。 |
 | docs/test_reports/VALIDATION_REPORT.md | VALIDATION_REPORT.md | 文件 | 单文件验证范围、结果和兼容边界报告。 |
@@ -378,6 +379,7 @@
 | src/resources | resources | 文件夹 | 程序图标等运行时资源目录。 |
 | src/resources/icon.svg | icon.svg | 文件 | 系统托盘和窗口使用的 SVG 图标。 |
 | src/route_menu.py | route_menu.py | 文件 | 默认出口二级菜单、真实勾选、禁用原因与切换通知。 |
+| src/route_policy.py | route_policy.py | 文件 | 只读评估策略路由是否接管默认出口，兼容 Tailscale 普通组网规则。 |
 | src/route_switch_service.py | route_switch_service.py | 文件 | 默认出口控制 QProcess 服务，负责并发限制、超时与退出清理。 |
 | src/route_switch_worker.py | route_switch_worker.py | 文件 | NetworkManager 临时默认路由切换与检查点回滚后台模块。 |
 | src/run.sh | run.sh | 文件 | 源码启动脚本。 |
@@ -386,6 +388,7 @@
 | src/system_metrics.py | system_metrics.py | 文件 | 采集 CPU、内存、磁盘、流量和温度等系统指标。 |
 | src/tests | tests | 文件夹 | 源代码回归测试；网络写操作均使用模拟对象。 |
 | src/tests/test_interface_dns.py | test_interface_dns.py | 文件 | DNS 代理回退、超时预算和 HTTPS 网卡隔离回归测试。 |
+| src/tests/test_route_policy.py | test_route_policy.py | 文件 | 策略路由分类、默认接管保护和 Tailscale 兼容回归测试。 |
 | src/tests/test_route_switch.py | test_route_switch.py | 文件 | 默认出口规划、授权回滚、菜单与安全边界的隔离单元测试。 |
 | src/tray_controller.py | tray_controller.py | 文件 | 系统托盘菜单、设置窗口、位置恢复和退出清理。 |
 | src/utils.py | utils.py | 文件 | 速率格式化、网络签名和通用辅助函数。 |

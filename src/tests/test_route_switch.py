@@ -99,6 +99,7 @@ class PlanTests(unittest.TestCase):
             '[{"dst":"default","dev":"wifi"}]',
             '[{"priority":0,"src":"all","table":"local"},'
             '{"priority":100,"src":"all","table":100}]',
+            '[{"dst":"default","dev":"tunnel0"}]',
             '[]', '[{"priority":32766,"src":"all","table":"main"}]']
         with patch("route_switch_worker.subprocess.run") as command:
             from types import SimpleNamespace

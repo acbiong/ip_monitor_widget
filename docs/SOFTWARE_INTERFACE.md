@@ -509,7 +509,7 @@ flowchart TD
 ### 14.3 修改范围与事务
 
 1. 读取主表默认路由/策略规则、NetworkManager 设备/活动连接/权限；仅在线有效 IP 网卡进入菜单。
-2. 检查 UUID、受管理状态、已有默认路由、权限及无 VPN/策略/多路径冲突。
+2. 检查 UUID、受管理状态、已有默认路由、权限及 VPN/多路径限制；策略规则按第 16 节评估，不因规则存在就全部禁用。
 3. 获取 `GetAppliedConnection(0)` 和配置版本；复制配置，仅修改目标地址族的 route-metric 以及显式默认 route-data metric。
 4. 目标 metric 设为 1；若竞争出口 metric ≤1，临时设为 100。目标已经独占默认出口的地址族不改动。连接路由优先级也会遵循 route-metric，特定静态非默认路由的显式 metric 不变。
 5. 对涉及设备 `CheckpointCreate(...,90,0)`，经系统授权调用 `Reapply(settings,version,1)`；标志 1 保留外部 IP 配置，要求 NM 1.42+。不调用连接档案 Update/Save。
@@ -528,3 +528,19 @@ flowchart TD
 设备绑定 DNS 使用至多 timeout/2，各服务器均分剩余设备预算；绑定不可达或没有合适服务器时，剩余总预算交给系统配置解析器，`lifetime=remaining, search=False`。A/AAAA 由源地址族决定，系统 DNS 传输不必与记录地址族相同。所有路径失败转换为 socket.gaierror，便于现有 HTTPS 层继续轮换服务；不扩展父进程 6 秒看门狗。
 
 这是**DNS 路径回退，不是公网 IP 查询出口回退**。SourceAddressAdapter 的源地址、SO_BINDTODEVICE、TLS 证书验证、SNI/Host、禁止代理和禁止重定向保持不变。接口不添加未配置的公共 DNS，不修改系统解析配置，不跨网卡复用公网结果。
+
+## 16. 策略路由评估接口（0.7.2）
+
+新增独立模块 `route_policy.py`，只进行只读判断，不拥有网络写权限。
+
+| 接口 | 输入 | 输出 |
+|---|---|---|
+| `table_name(value)` | ip JSON 的表名或表号 | 255/254/253 统一为 local/main/default，其他表保留字符串 |
+| `table_preserves_default(routes, version)` | 路由数组、地址族 4/6 | bool：局部网段或 throw 不接管默认出口；默认、/1、合并覆盖全网及未知数据返回 false |
+| `policy_allows_main(rules, read_table, version)` | 规则数组、读取指定表的回调、地址族 | bool：未标记流量能到达主表且前序表不接管默认出口；I/O 异常不吞掉 |
+
+按规则优先级评估：保留 local；不匹配未标记流量的非零 fwmark 规则不阻止主表切换；对于优先于 main 的自定义表，读取并检查完整路由数组。仅局部网段的路由不阻止主表切换，原策略及其目的网段完全不改。一个地址族内重复表只查询一次，最多读取 8 个表；未知选择器、缺少 main、默认接管或非法结构保守拒绝。
+
+`read_kernel_routes()` 仍返回 `(routes, safe)`；除原主表默认路由/规则读取外，按需使用 `ip -j -4/-6 route show table TABLE` 读取相关策略表。菜单和事务使用同一个判定，切换后复核仍生效。JSON 协议不变；菜单 tooltip 及结果文字明确“主路由表”，而不是承诺所有策略流量都已改道。
+
+本次支持当前 Tailscale 普通组网规则，并非移除 VPN 安全限制：出口节点或未知复杂策略仍应使用系统网络设置，现有 NetworkManager 活动 VPN 限制不变。
