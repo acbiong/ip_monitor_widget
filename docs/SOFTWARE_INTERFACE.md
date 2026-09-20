@@ -19,7 +19,7 @@
 
 ### 2.1 主事件循环
 
-`QApplication` 在主线程运行 Qt 事件循环。指标定时器按配置的 `interval` 读取本地信息，公网刷新定时器每 60 秒提交一次快照。网卡名称/IP 变化不等待 60 秒周期，会立即触发新查询。Qt 控件只在主线程操作。
+`QApplication` 在主线程运行 Qt 事件循环。指标定时器按配置的 `interval` 读取本地信息，公网刷新定时器按 `public_ip_interval` 秒提交快照（默认 60 秒，范围 10–3600）。网卡名称/IP 变化不等待该周期，会立即触发新查询。Qt 控件只在主线程操作。
 
 默认出口在每次指标刷新时独立启动异步查询，不以网卡/IP 签名变化为前提。IPv4、IPv6 各最多一个 `ip` 子进程；尚有任务时不重复启动，每个命令有 1500 ms 看门狗。查询完成后分别更新窗口顶部两行，不改变各网卡公网 IP 查询结果。判断范围为 main 表通用默认路由：过滤失效/拒绝/来源受限路由，优先最低 metric，IPv6 同 metric 比较 pref；相同优先级的设备去重后逐行显示。它反映默认路由配置，不表示公网可用，也不覆盖策略路由、VPN、特定目的地址路由的全部选路行为。
 
@@ -50,7 +50,7 @@ CPU 为 `cpu_percent(interval=None)` 的连续采样值；首次初始化建立�
 - 连接超时上限 0.6 秒、读超时上限 1 秒，并按剩余预算缩短。
 - requests 的读/连接超时并不保证 DNS 或整次请求准时结束。因此父进程从任务启动起另设 **6000 ms 看门狗**，超时杀掉该子进程。本网卡任务失败即提交 failed，不等待其他网卡是否成功。
 - 6 秒针对**每个已启动任务**，不含排队；N 张网卡首轮最坏需约 `ceil(N/4) × 6 秒` 加进程和事件调度开销，不作实时系统级时限保证。
-- 一轮全部完成后仍有 failed 网卡，则间隔 3 秒自动重试这些网卡；最多额外 2 轮，成功的 ok 项不重新查询。重试通过 `attempt` 轮换首选服务，避免一直卡在同一个服务；全部轮次结束后仍保留每 60 秒周期刷新。
+- 一轮全部完成后仍有 failed 网卡，则间隔 3 秒自动重试这些网卡；最多额外 2 轮，成功的 ok 项不重新查询。重试通过 `attempt` 轮换首选服务，避免一直卡在同一个服务；全部轮次结束后仍保留按配置周期刷新（默认 60 秒）。
 - 查询服务维护递增代次。网卡变化时取消旧任务及待执行重试，旧代次即使延迟结束也不能提交结果。无可用本机地址的 USB 网卡不会进入查询队列，取得地址后由快照变化触发查询。
 - 退出时先禁止新任务、停止重试定时器、清空队列、终止全部子进程，再逐个最多等待 500 ms 回收。没有 `QThread`/线程池退出等待，也没有无法取消的 Python DNS 线程留在主进程。
 
@@ -128,7 +128,7 @@ flowchart TD
     Changed -->|否| Render[刷新指标标签]
     Rebuild --> Render
     Render --> Loop
-    Loop -->|60秒周期| Public[提交公网查询]
+    Loop -->|可配置公网周期| Public[提交公网查询]
     Public --> Loop
     Loop -->|打开设置| Settings[设置预览事务]
     Settings --> Loop
@@ -195,6 +195,7 @@ flowchart TD
 | `font_size` | int | 16 | 8–48，像素，不是 Qt 点值 |
 | `opacity` | float | 0.50 | 0.10–0.95，背景 alpha；数值越大越不透明，文字保持白色不透明 |
 | `interval` | int | 1000 | 500–10000 ms；UI 步进 500，不限制文件只能取整步长 |
+| `public_ip_interval` | int | 60 | 10–3600 秒；旧配置缺省默认值，保存至相同 QSettings 命名空间 |
 | `locked` | bool | false | Qt 鼠标穿透标志，仅托盘控制 |
 
 `normalize_settings()` 忽略未知键；非法数字、NaN/Infinity 回退默认；有限越界值钳制到范围；布尔兼容 true/false、1/0、yes/no，非法布尔回退默认。返回完整新字典，不修改输入。
@@ -215,7 +216,7 @@ flowchart TD
 | `utils.format_rate(bytes_per_second)` | 有限 float，Byte/s | str；负值按 0 |
 | `utils.network_signature(interfaces)` | 网卡快照 | 稳定元组 |
 
-公网常量：`PUBLIC_IP_LOOKUP_SECONDS=2.5`、`PUBLIC_IP_CONNECT_SECONDS=0.6`、`PUBLIC_IP_READ_SECONDS=1.0`、`PUBLIC_IP_PROCESS_TIMEOUT_MS=6000`、`PUBLIC_IP_REFRESH_MS=60000`、`PUBLIC_IP_MAX_PROCESSES=4`、`PUBLIC_IP_RETRY_MS=3000`、`PUBLIC_IP_MAX_RETRIES=2`；`PUBLIC_IP_ENDPOINTS` 是按顺序尝试的 HTTPS URL 元组，重试轮换起点，不承诺服务持续可用。
+公网常量：`PUBLIC_IP_LOOKUP_SECONDS=2.5`、`PUBLIC_IP_CONNECT_SECONDS=0.6`、`PUBLIC_IP_READ_SECONDS=1.0`、`PUBLIC_IP_PROCESS_TIMEOUT_MS=6000`、`PUBLIC_IP_INTERVAL_LIMITS=(10,3600)`（秒，默认值见 DEFAULT_SETTINGS）、`PUBLIC_IP_MAX_PROCESSES=4`、`PUBLIC_IP_RETRY_MS=3000`、`PUBLIC_IP_MAX_RETRIES=2`；`PUBLIC_IP_ENDPOINTS` 是按顺序尝试的 HTTPS URL 元组，重试轮换起点，不承诺服务持续可用。
 
 ### 6.2 网卡与公网 HTTP
 
@@ -544,3 +545,11 @@ flowchart TD
 `read_kernel_routes()` 仍返回 `(routes, safe)`；除原主表默认路由/规则读取外，按需使用 `ip -j -4/-6 route show table TABLE` 读取相关策略表。菜单和事务使用同一个判定，切换后复核仍生效。JSON 协议不变；菜单 tooltip 及结果文字明确“主路由表”，而不是承诺所有策略流量都已改道。
 
 本次支持当前 Tailscale 普通组网规则，并非移除 VPN 安全限制：出口节点或未知复杂策略仍应使用系统网络设置，现有 NetworkManager 活动 VPN 限制不变。
+
+## 17. 公网获取间隔协议（0.8.0）
+
+- `SettingsDialog` 新控件 `public_ip_interval: QSpinBox`，单位秒、范围取 `PUBLIC_IP_INTERVAL_LIMITS`。`current_values()`、`preview_changed(dict)` 和 `values_applied(dict)` 增加同名整数键；还原默认时包含该键且合并发出一次预览。
+- `normalize_settings` 兼容旧配置，非法值用 60 秒，越界值裁剪。`SettingsStore` 持久化同名键，不更改原配置路径和几何协议。
+- `MonitorWidget.public_timer` 启动使用 `public_ip_interval * 1000`；`_update_public_ip_interval()` 仅间隔变化时 setInterval。预览即时重新计时，取消恢复原间隔并重新计时，不恢复已流逝的剩余毫秒；修改其他设置不推迟查询。
+- 原 `fetch_public_ip()` 和 PublicIPService 继续负责独立网卡查询、合并在途任务、超时、重试和过期结果隔离。本机地址不变仍定期产生新查询；不引入网络写操作。
+- `--smoke-test` 新增 `public_ip_interval_preview`、`public_ip_interval_default`，保存/取消检查同时断言持久化值和计时器间隔。任意检查失败使总结果失败。

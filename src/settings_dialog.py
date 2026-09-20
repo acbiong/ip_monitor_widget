@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
     QApplication,
 )
 
-from config import ICON_PATH
+from config import ICON_PATH, PUBLIC_IP_INTERVAL_LIMITS
 
 
 class SettingsDialog(QDialog):
@@ -82,11 +82,18 @@ class SettingsDialog(QDialog):
         self.interval.setSuffix(" ms")
         self.interval.setValue(int(values["interval"]))
 
+        self.public_ip_interval = QSpinBox()
+        self.public_ip_interval.setRange(*PUBLIC_IP_INTERVAL_LIMITS)
+        self.public_ip_interval.setSuffix(" 秒")
+        self.public_ip_interval.setValue(int(values["public_ip_interval"]))
+        self.public_ip_interval.setToolTip("定时重新查询各网卡的公网 IP；查询进行中时不重复启动。默认 60 秒。")
+
         form = QFormLayout()
         form.setLabelAlignment(Qt.AlignRight)
         form.addRow("文字大小", self.font_size)
         form.addRow("背景透明度", opacity_row)
-        form.addRow("刷新间隔", self.interval)
+        form.addRow("系统指标刷新间隔", self.interval)
+        form.addRow("公网 IP 获取间隔", self.public_ip_interval)
         form.addRow("窗口层级", QLabel("始终置底（不遮挡其他软件）"))
 
         buttons = QDialogButtonBox(
@@ -113,6 +120,7 @@ class SettingsDialog(QDialog):
         self.opacity.valueChanged.connect(self._update_opacity_text)
         self.opacity.valueChanged.connect(self._emit_preview)
         self.interval.valueChanged.connect(self._emit_preview)
+        self.public_ip_interval.valueChanged.connect(self._emit_preview)
 
     def _update_opacity_text(self, value: int) -> None:
         self.opacity_value.setText(f"{value}%")
@@ -123,6 +131,7 @@ class SettingsDialog(QDialog):
             "font_size": self.font_size.value(),
             "opacity": self.opacity.value() / 100,
             "interval": self.interval.value(),
+            "public_ip_interval": self.public_ip_interval.value(),
         }
 
     def _emit_preview(self) -> None:
@@ -130,12 +139,13 @@ class SettingsDialog(QDialog):
 
     def restore_defaults(self) -> None:
         """将控件恢复到默认值并立即触发预览。"""
-        controls = (self.font_size, self.opacity, self.interval)
+        controls = (self.font_size, self.opacity, self.interval, self.public_ip_interval)
         for control in controls:
             control.blockSignals(True)
         self.font_size.setValue(int(self.defaults["font_size"]))
         self.opacity.setValue(round(float(self.defaults["opacity"]) * 100))
         self.interval.setValue(int(self.defaults["interval"]))
+        self.public_ip_interval.setValue(int(self.defaults["public_ip_interval"]))
         for control in controls:
             control.blockSignals(False)
         self._update_opacity_text(self.opacity.value())

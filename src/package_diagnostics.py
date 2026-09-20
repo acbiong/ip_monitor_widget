@@ -162,9 +162,11 @@ def smoke_test() -> int:
                     dialog.font_size.setValue(48)
                     dialog.opacity.setValue(95)
                     dialog.interval.setValue(10000)
+                    dialog.public_ip_interval.setValue(10)
                     QApplication.processEvents()
                     report["settings_preview"] = all(controller.widget.values[key] == value
                                                       for key, value in dialog.current_values().items())
+                    report["public_ip_interval_preview"] = controller.widget.public_timer.interval() == 10000
                     text_widgets = dialog.findChildren((QLabel, QSpinBox, QLineEdit, QPushButton))
                     report["settings_black_text"] = all(
                         child.palette().color(role) == QColor("#000000")
@@ -184,10 +186,13 @@ def smoke_test() -> int:
                     report["settings_restore_defaults"] = all(
                         controller.widget.values[key] == value == dialog.defaults[key]
                         for key, value in dialog.current_values().items())
+                    report["public_ip_interval_default"] = controller.widget.public_timer.interval() == 60000
                     dialog.font_size.setValue(24)
+                    dialog.public_ip_interval.setValue(120)
                     results.append(all(report[key] for key in (
                         "settings_preview", "settings_black_text", "settings_style_isolated",
-                        "settings_fixed_size", "settings_restore_defaults")))
+                        "settings_fixed_size", "settings_restore_defaults", "public_ip_interval_preview",
+                        "public_ip_interval_default")))
                     buttons.button(QDialogButtonBox.Save if save else QDialogButtonBox.Cancel).click()
                 except Exception as error:
                     report["settings_error"] = str(error)
@@ -201,9 +206,12 @@ def smoke_test() -> int:
                 QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
                 if save:
                     report["settings_saved"] = (controller.widget.values["font_size"] == 24
-                                                 == controller.widget.store.load()["font_size"])
+                                                 == controller.widget.store.load()["font_size"]
+                                                 and controller.widget.store.load()["public_ip_interval"] == 120
+                                                 and controller.widget.public_timer.interval() == 120000)
                 else:
-                    report["settings_cancelled"] = controller.widget.values == original_values
+                    report["settings_cancelled"] = (controller.widget.values == original_values
+                        and controller.widget.public_timer.interval() == original_values["public_ip_interval"] * 1000)
                 results.append(not controller.widget.findChildren(SettingsDialog))
             report["settings_open_close"] = (all(results) and report["settings_saved"]
                                                and report["settings_cancelled"])

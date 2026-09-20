@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from config import APP_NAME, DEFAULT_SETTINGS, ICON_PATH, PUBLIC_IP_REFRESH_MS
+from config import APP_NAME, DEFAULT_SETTINGS, ICON_PATH
 from default_route import DefaultRouteService
 from network import get_network_interfaces
 from public_ip_service import PublicIPService
@@ -75,7 +75,7 @@ class MonitorWidget(QFrame):
         self.timer.start(self.values["interval"])
         self.public_timer = QTimer(self)
         self.public_timer.timeout.connect(self.fetch_public_ip)
-        self.public_timer.start(PUBLIC_IP_REFRESH_MS)
+        self.public_timer.start(self.values["public_ip_interval"] * 1000)
         self.update_metrics()
         QTimer.singleShot(0, self.fetch_public_ip)
 
@@ -383,6 +383,7 @@ class MonitorWidget(QFrame):
         previous_font = self.values["font_size"]
         self.values = normalize_settings({**self.values, **updated})
         self.timer.setInterval(self.values["interval"])
+        self._update_public_ip_interval()
         if self.values["font_size"] != previous_font:
             self._apply_font()
         self.update()
@@ -393,10 +394,17 @@ class MonitorWidget(QFrame):
         locked = original_values["locked"]
         self.values = dict(original_values)
         self.timer.setInterval(self.values["interval"])
+        self._update_public_ip_interval()
         self._apply_font()
         self._apply_lock_state(locked, save=False)
         self.restoreGeometry(original_geometry)
         self._fit_content()
+
+    def _update_public_ip_interval(self) -> None:
+        """只在公网间隔变化时重置倒计时，其他设置预览不推迟公网查询。"""
+        interval_ms = self.values["public_ip_interval"] * 1000
+        if self.public_timer.interval() != interval_ms:
+            self.public_timer.setInterval(interval_ms)
 
     def apply_settings(self, updated: dict) -> None:
         """保存设置窗口提交的配置。"""

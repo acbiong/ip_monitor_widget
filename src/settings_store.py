@@ -5,13 +5,14 @@ import logging
 
 from PyQt5.QtCore import QByteArray, QSettings
 
-from config import APP_ID, DEFAULT_SETTINGS, ORG_NAME
+from config import APP_ID, DEFAULT_SETTINGS, ORG_NAME, PUBLIC_IP_INTERVAL_LIMITS
 
 
 def normalize_settings(values: dict) -> dict:
     """忽略未知字段，非法值恢复默认；数值约束与设置界面保持一致。"""
     result = dict(DEFAULT_SETTINGS)
-    limits = {"font_size": (8, 48), "opacity": (0.10, 0.95), "interval": (500, 10000)}
+    limits = {"font_size": (8, 48), "opacity": (0.10, 0.95), "interval": (500, 10000),
+              "public_ip_interval": PUBLIC_IP_INTERVAL_LIMITS}
     for name, default in result.items():
         value = values.get(name, default)
         try:
