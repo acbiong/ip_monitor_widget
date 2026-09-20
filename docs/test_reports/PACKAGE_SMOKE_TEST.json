@@ -1,8 +1,11 @@
 {
-  "application_version": "0.6.0+build.20260920.3",
+  "application_version": "0.6.1+build.20260920.1",
   "about_fields": true,
   "about_icon": true,
   "about_style": true,
+  "about_title": true,
+  "about_name_centered": true,
+  "about_fixed_size": true,
   "about_open_close": true,
   "icon_rendered": true,
   "window_visible": true,
