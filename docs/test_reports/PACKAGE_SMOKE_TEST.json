@@ -1,5 +1,6 @@
 {
-  "application_version": "0.6.2+build.20260920.1",
+  "application_version": "0.7.0+build.20260920.1",
+  "route_menu_readonly": true,
   "about_fields": true,
   "about_icon": true,
   "about_style": true,

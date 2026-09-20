@@ -1,13 +1,13 @@
 {
-  "application_version": "0.6.2+build.20260920.1",
+  "application_version": "0.7.0+build.20260920.1",
   "git": {
-    "branch": "fix/settings-dialog-style-size",
-    "commit": "3b890eb720716fcbe41b631e16bad8b0147dcdc7",
-    "commit_short": "3b890eb72071",
+    "branch": "feature/default-route-switch",
+    "commit": "55a8213e2ee682c37d97e0333fadb586a4803952",
+    "commit_short": "55a8213e2ee6",
     "dirty": false
   },
   "build": {
-    "built_at": "2026-09-20T06:03:28.990257+00:00",
+    "built_at": "2026-09-20T06:36:07.405935+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",
@@ -23,7 +23,8 @@
     "psutil": "7.2.2",
     "requests": "2.34.2",
     "dnspython": "2.8.0",
-    "certifi": "2026.7.22"
+    "certifi": "2026.7.22",
+    "dbus-next": "0.2.3"
   },
   "checks": {
     "build_metadata": true,
@@ -32,7 +33,8 @@
     "tls_context": true,
     "xcb_plugin": true,
     "bundled_route_tool": true,
-    "background_entry": true
+    "background_entry": true,
+    "route_control_entry": true
   },
   "ok": true
 }

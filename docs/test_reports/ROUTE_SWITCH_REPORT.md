@@ -28,3 +28,9 @@
 
 最终版本、依赖和源码快照见 `../BUILD_MANIFEST.json`；单文件自检/图形结果见
 `PACKAGE_SELF_TEST.json`、`PACKAGE_SMOKE_TEST.json` 和 `VALIDATION_REPORT.md`。
+
+最终单文件版本：`0.7.0+build.20260920.1`。在临时工作目录、`PATH=/nonexistent` 且清除外部 Python/Qt 路径的真实 X11 环境中：
+- `--self-test` 返回 0，`route_control_entry=true`，内置 dbus-next 0.2.3。
+- `--smoke-test` 返回 0，`route_menu_readonly=true`，关于页、设置页、默认路由、后台进程及退出检查全部通过。
+- 单独执行 `--default-route-control` 的 list 请求正确返回真实候选网卡、IPv4 勾选和 vmnet 禁用状态；没有依赖 PATH 中的 Python、Git、nmcli 或 ip 命令。
+- 包内版本与干净源码 Git 快照一致，SHA256 校验及压缩包执行权限检查通过。

@@ -1,6 +1,6 @@
 # 项目文件与目录清单
 
-> 生成日期：2026-09-20；共 185 个文件夹、198 个文件。
+> 生成日期：2026-09-20；共 187 个文件夹、199 个文件。
 
 覆盖项目文件、资源、报告、发布产物和 Git 顶层目录；`.git` 内部对象及忽略的编译缓存不展开。
 
@@ -57,6 +57,9 @@
 | docs/third_party_licenses/charset-normalizer/charset_normalizer-3.5.1.dist-info | charset_normalizer-3.5.1.dist-info | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/charset-normalizer/charset_normalizer-3.5.1.dist-info/licenses | licenses | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/charset-normalizer/charset_normalizer-3.5.1.dist-info/licenses/LICENSE | LICENSE | 文件 | 第三方组件许可证或版权声明文件。 |
+| docs/third_party_licenses/dbus-next | dbus-next | 文件夹 | 第三方组件许可证目录。 |
+| docs/third_party_licenses/dbus-next/dbus_next-0.2.3.dist-info | dbus_next-0.2.3.dist-info | 文件夹 | 第三方组件许可证目录。 |
+| docs/third_party_licenses/dbus-next/dbus_next-0.2.3.dist-info/LICENSE | LICENSE | 文件 | 第三方组件许可证或版权声明文件。 |
 | docs/third_party_licenses/dnspython | dnspython | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/dnspython/dnspython-2.8.0.dist-info | dnspython-2.8.0.dist-info | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
 | docs/third_party_licenses/dnspython/dnspython-2.8.0.dist-info/licenses | licenses | 文件夹 | 对应第三方 Python/Qt 组件的许可归档目录。 |
