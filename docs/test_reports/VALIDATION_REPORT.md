@@ -5,9 +5,9 @@
 ## 验证对象
 
 - 文件：`dist/DesktopMonitor-deepin25-x86_64`
-- 应用版本：`0.7.0+build.20260920.1`
-- 构建源码分支：`feature/default-route-switch`
-- 构建源码提交：`55a8213e2ee682c37d97e0333fadb586a4803952`（自动递增构建号之前工作树干净）
+- 应用版本：`0.7.1+build.20260920.1`
+- 构建源码分支：`fix/public-ip-current-network`
+- 构建源码提交：`a42617fb30f1b45e5a422b3216ec73558ecb3b11`（自动递增构建号之前工作树干净）
 - 目标：deepin 25、x86_64、glibc 2.38 或更高、X11 或可用的 XWayland
 - 传输包：`dist/DesktopMonitor-deepin25-x86_64.tar.gz`
 - 校验值：见 `dist/SHA256SUMS` 和 `docs/BUILD_MANIFEST.json`
@@ -21,6 +21,7 @@
 | 关于页面 | 通过 | 从真实托盘动作连续两次打开/关闭，字段、图标、样式、固定尺寸、名称居中、标题仅“关于”和对象释放均通过 |
 | 设置窗口 | 通过 | 黑字浅底、字号/透明度隔离、固定尺寸、实时预览、默认恢复、取消回滚、保存与对象释放均通过 |
 | 默认出口菜单 | 通过（只读） | 内置 dbus-next 和控制入口可用；实际系统枚举正确，未执行真实路由写操作 |
+| 当前网络公网查询 | 通过 | 单文件保持设备绑定，无线首轮约 1.95 秒取得公网地址，vmnet1/vmnet8 失败且不借用无线结果；见 PUBLIC_IP_DNS_REPORT.md |
 | 清空外部环境自检 | 通过 | 清空 `PATH`、`PYTHONPATH`、`PYTHONHOME`、外部 Qt 插件路径后运行，结果保存在 `docs/test_reports/PACKAGE_SELF_TEST.json` |
 | 图形启动冒烟测试 | 通过 | 在隔离临时目录中运行 `--smoke-test`，验证图标、窗口可见、默认路由检测、后台进程链路和退出清理，结果保存在 `docs/test_reports/PACKAGE_SMOKE_TEST.json` |
 | 原生依赖审计 | 通过 | `NATIVE_DEPENDENCIES.json` 中记录的 ELF 依赖无缺失外部库，最低 GLIBC 为 2.38 |
@@ -70,3 +71,5 @@ chmod +x DesktopMonitor-deepin25-x86_64
 公网 IP 查询还会受到目标电脑的 DNS、路由、防火墙、代理和网卡实际连通性的影响；查询失败时软件按设计显示“未连接公网”，不等同于单文件依赖缺失。
 
 默认出口真实切换、认证及回滚未在本机执行，以免中断用户网络；28 项模拟测试通过，详情见 `ROUTE_SWITCH_REPORT.md`。目标系统需 NetworkManager 1.42+ 和 Polkit 服务；无此服务时仅切换功能不可用。
+
+0.7.1 DNS 修复新增 13 项回归，与出口切换测试合计 41 项通过。真实公网查询仅在用户授权后访问现有回显服务，不修改路由、DNS、VPN 或用户设置，不在报告保存实际公网 IP。

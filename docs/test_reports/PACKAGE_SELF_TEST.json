@@ -1,13 +1,13 @@
 {
-  "application_version": "0.7.0+build.20260920.1",
+  "application_version": "0.7.1+build.20260920.1",
   "git": {
-    "branch": "feature/default-route-switch",
-    "commit": "55a8213e2ee682c37d97e0333fadb586a4803952",
-    "commit_short": "55a8213e2ee6",
+    "branch": "fix/public-ip-current-network",
+    "commit": "a42617fb30f1b45e5a422b3216ec73558ecb3b11",
+    "commit_short": "a42617fb30f1",
     "dirty": false
   },
   "build": {
-    "built_at": "2026-09-20T06:36:07.405935+00:00",
+    "built_at": "2026-09-20T07:12:21.958755+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",

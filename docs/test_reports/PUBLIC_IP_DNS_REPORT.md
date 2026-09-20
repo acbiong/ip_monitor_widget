@@ -40,3 +40,11 @@
 未验证所有 VPN/企业 DNS/代理策略。公网服务可达性仍可能波动，当前网络实测结果不代表所有网卡都能访问互联网。
 DNS 回退允许遵循系统路由，但公网回显连接始终绑定指定设备；不把 failed 严格等同完整互联网断网诊断。
 最终单文件的版本、自检和 GUI 结果见 `../BUILD_MANIFEST.json`、`PACKAGE_SELF_TEST.json`、`PACKAGE_SMOKE_TEST.json` 和 `VALIDATION_REPORT.md`。
+
+## 最终单文件复验
+
+版本 `0.7.1+build.20260920.1`，在临时目录、`PATH=/nonexistent` 且清除外部 Python/Qt 路径的当前 X11 环境：
+- `--self-test` 与 `--smoke-test` 均退出 0、`ok=true`，原 UI/路由/后台及退出检查通过。
+- 单文件内部 `--public-ip-lookup` 真实查询 wlp0s20f3：第 0 轮即成功，返回 1 个全局单播地址，总耗时约 1.95 秒（含单文件启动）。
+- vmnet1 和 vmnet8 均返回 failed、0 个地址，分别约 3.80/3.81 秒；未借用无线公网 IP。
+- 版本和干净源码快照一致，压缩包执行权限及 SHA256 校验通过。
