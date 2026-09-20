@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#52606d"/>
+    </marker>
+    <style>
+      .title { font: 700 30px 'Noto Sans CJK SC', sans-serif; fill: #17202a; }
+      .label { font: 600 20px 'Noto Sans CJK SC', sans-serif; fill: #17202a; }
+      .small { font: 16px 'Noto Sans CJK SC', sans-serif; fill: #52606d; }
+      .box { stroke: #52606d; stroke-width: 2; rx: 16; }
+      .arrow { stroke: #52606d; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="680" fill="#f7f9fb"/>
+  <text x="600" y="52" text-anchor="middle" class="title">本机状态监视器软件架构</text>
+  <rect x="60" y="105" width="230" height="100" class="box" fill="#dff6f0"/>
+  <text x="175" y="145" text-anchor="middle" class="label">用户与桌面</text>
+  <text x="175" y="177" text-anchor="middle" class="small">鼠标、托盘、窗口管理器</text>
+  <rect x="420" y="90" width="360" height="130" class="box" fill="#dcecff"/>
+  <text x="600" y="137" text-anchor="middle" class="label">Qt 主窗口与托盘</text>
+  <text x="600" y="170" text-anchor="middle" class="small">渲染、拖动、锁定、设置预览</text>
+  <text x="600" y="195" text-anchor="middle" class="small">固定置底、位置记忆、退出清理</text>
+  <rect x="910" y="105" width="230" height="100" class="box" fill="#fff1cc"/>
+  <text x="1025" y="145" text-anchor="middle" class="label">设置与版本</text>
+  <text x="1025" y="177" text-anchor="middle" class="small">QSettings、VERSION.json</text>
+  <path d="M290 155 H410" class="arrow"/>
+  <path d="M790 155 H900" class="arrow"/>
+  <rect x="70" y="330" width="245" height="125" class="box" fill="#e9e2ff"/>
+  <text x="192" y="372" text-anchor="middle" class="label">网络模块</text>
+  <text x="192" y="404" text-anchor="middle" class="small">多网卡与本机 IP</text>
+  <text x="192" y="430" text-anchor="middle" class="small">DNS、默认出口检测</text>
+  <rect x="355" y="330" width="245" height="125" class="box" fill="#e9e2ff"/>
+  <text x="477" y="372" text-anchor="middle" class="label">公网 IP 服务</text>
+  <text x="477" y="404" text-anchor="middle" class="small">每张网卡独立绑定查询</text>
+  <text x="477" y="430" text-anchor="middle" class="small">超时、重试、进程回收</text>
+  <rect x="640" y="330" width="245" height="125" class="box" fill="#e9e2ff"/>
+  <text x="762" y="372" text-anchor="middle" class="label">系统指标</text>
+  <text x="762" y="404" text-anchor="middle" class="small">CPU、内存、磁盘</text>
+  <text x="762" y="430" text-anchor="middle" class="small">流量与 CPU 温度</text>
+  <rect x="925" y="330" width="205" height="125" class="box" fill="#e9e2ff"/>
+  <text x="1027" y="372" text-anchor="middle" class="label">打包运行时</text>
+  <text x="1027" y="404" text-anchor="middle" class="small">Python、Qt、证书</text>
+  <text x="1027" y="430" text-anchor="middle" class="small">内置 ip 工具</text>
+  <path d="M520 220 C420 260 220 270 192 320" class="arrow"/>
+  <path d="M570 220 C540 260 500 275 477 320" class="arrow"/>
+  <path d="M630 220 C700 260 750 275 762 320" class="arrow"/>
+  <path d="M690 220 C850 255 980 270 1027 320" class="arrow"/>
+  <rect x="195" y="535" width="810" height="75" class="box" fill="#ffffff"/>
+  <text x="600" y="578" text-anchor="middle" class="label">数据流：采集 → 异步处理 → Qt 信号 → 动态布局 → 桌面显示</text>
+  <path d="M192 455 V500 H600 V525" class="arrow"/>
+  <path d="M477 455 V500 H600 V525" class="arrow"/>
+  <path d="M762 455 V500 H600 V525" class="arrow"/>
+</svg>

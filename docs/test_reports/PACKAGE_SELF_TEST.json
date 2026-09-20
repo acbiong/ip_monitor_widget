@@ -1,0 +1,23 @@
+{
+  "application_version": "0.5.1+build.20260920.2",
+  "frozen": true,
+  "python": "3.12.13",
+  "qt": "5.15.19",
+  "qt_binding_build": "5.15.14",
+  "packages": {
+    "PyQt5": "5.15.11",
+    "psutil": "7.2.2",
+    "requests": "2.34.2",
+    "dnspython": "2.8.0",
+    "certifi": "2026.7.22"
+  },
+  "checks": {
+    "icon": true,
+    "ca_certificates": true,
+    "tls_context": true,
+    "xcb_plugin": true,
+    "bundled_route_tool": true,
+    "background_entry": true
+  },
+  "ok": true
+}

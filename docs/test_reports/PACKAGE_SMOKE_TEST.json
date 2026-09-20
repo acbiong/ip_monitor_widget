@@ -1,0 +1,15 @@
+{
+  "application_version": "0.5.1+build.20260920.2",
+  "icon_rendered": true,
+  "window_visible": true,
+  "routes": {
+    "ipv4": [
+      "wlp0s20f3"
+    ],
+    "ipv6": []
+  },
+  "route_detection": true,
+  "background_query": true,
+  "no_remaining_workers": true,
+  "ok": true
+}

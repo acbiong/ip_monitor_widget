@@ -1,0 +1,45 @@
+{
+  "application_version": "0.5.1+build.20260920.2",
+  "base_version": "0.5.1",
+  "build_number": 2,
+  "built_at": "2026-09-20T05:09:50.391288+00:00",
+  "target": "deepin 25 x86_64, X11 or available XWayland",
+  "architecture": "x86_64",
+  "python": "3.12.13",
+  "libc": [
+    "glibc",
+    "2.38"
+  ],
+  "os_release": {
+    "NAME": "Deepin",
+    "ID": "deepin",
+    "PRETTY_NAME": "Deepin 25",
+    "VERSION_CODENAME": "crimson",
+    "HOME_URL": "https://www.deepin.org/",
+    "BUG_REPORT_URL": "https://bbs.deepin.org",
+    "VERSION_ID": "25",
+    "VERSION": "25"
+  },
+  "sha256": {
+    "DesktopMonitor-deepin25-x86_64": "61d0a0bbb5a5b5773cb2256ef69814b5cb6440d5086166c4d701d1984a1f7308",
+    "DesktopMonitor-deepin25-x86_64.tar.gz": "46a6d1becbd28e401b20f156cfff306683070d42f05b27f6331d57afe318e257"
+  },
+  "packages": {
+    "certifi": "2026.7.22",
+    "PyQt5_sip": "12.19.0",
+    "psutil": "7.2.2",
+    "pyinstaller-hooks-contrib": "2026.7",
+    "pyinstaller": "6.22.3",
+    "PyQt5": "5.15.11",
+    "urllib3": "2.8.0",
+    "dnspython": "2.8.0",
+    "charset-normalizer": "3.5.1",
+    "altgraph": "0.17.5",
+    "packaging": "26.3",
+    "PyQt5-Qt5": "5.15.19",
+    "requests": "2.34.2",
+    "idna": "3.20",
+    "pip": "26.2.1",
+    "setuptools": "84.0.0"
+  }
+}

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#52606d"/>
+    </marker>
+    <style>
+      .title { font: 700 30px 'Noto Sans CJK SC', sans-serif; fill: #17202a; }
+      .label { font: 600 20px 'Noto Sans CJK SC', sans-serif; fill: #17202a; }
+      .small { font: 16px 'Noto Sans CJK SC', sans-serif; fill: #52606d; }
+      .box { stroke: #52606d; stroke-width: 2; rx: 16; }
+      .arrow { stroke: #52606d; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="520" fill="#f7f9fb"/>
+  <text x="600" y="52" text-anchor="middle" class="title">软件构建与使用流程</text>
+  <rect x="55" y="135" width="190" height="120" class="box" fill="#dcecff"/>
+  <text x="150" y="180" text-anchor="middle" class="label">源代码</text>
+  <text x="150" y="212" text-anchor="middle" class="small">src/ + resources/</text>
+  <text x="150" y="238" text-anchor="middle" class="small">VERSION.json</text>
+  <rect x="300" y="135" width="190" height="120" class="box" fill="#fff1cc"/>
+  <text x="395" y="180" text-anchor="middle" class="label">版本递增</text>
+  <text x="395" y="212" text-anchor="middle" class="small">0.5.0</text>
+  <text x="395" y="238" text-anchor="middle" class="small">+build 日期.序号</text>
+  <rect x="545" y="135" width="190" height="120" class="box" fill="#e9e2ff"/>
+  <text x="640" y="180" text-anchor="middle" class="label">PyInstaller</text>
+  <text x="640" y="212" text-anchor="middle" class="small">Python、Qt、依赖</text>
+  <text x="640" y="238" text-anchor="middle" class="small">打包为单文件 ELF</text>
+  <rect x="790" y="135" width="190" height="120" class="box" fill="#dff6f0"/>
+  <text x="885" y="180" text-anchor="middle" class="label">审计与测试</text>
+  <text x="885" y="212" text-anchor="middle" class="small">self-test、smoke-test</text>
+  <text x="885" y="238" text-anchor="middle" class="small">SHA256、依赖审计</text>
+  <rect x="1035" y="135" width="120" height="120" class="box" fill="#ffe0e0"/>
+  <text x="1095" y="180" text-anchor="middle" class="label">dist/</text>
+  <text x="1095" y="212" text-anchor="middle" class="small">单文件</text>
+  <text x="1095" y="238" text-anchor="middle" class="small">传输包</text>
+  <path d="M245 195 H290" class="arrow"/>
+  <path d="M490 195 H535" class="arrow"/>
+  <path d="M735 195 H780" class="arrow"/>
+  <path d="M980 195 H1025" class="arrow"/>
+  <rect x="270" y="350" width="270" height="85" class="box" fill="#ffffff"/>
+  <text x="405" y="388" text-anchor="middle" class="label">目标 deepin 电脑</text>
+  <text x="405" y="416" text-anchor="middle" class="small">解压并双击运行</text>
+  <rect x="665" y="350" width="270" height="85" class="box" fill="#ffffff"/>
+  <text x="800" y="388" text-anchor="middle" class="label">日常使用</text>
+  <text x="800" y="416" text-anchor="middle" class="small">设置、锁定、托盘退出</text>
+  <path d="M1095 255 V300 H405 V340" class="arrow"/>
+  <path d="M540 392 H655" class="arrow"/>
+</svg>
