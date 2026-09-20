@@ -58,7 +58,7 @@ python3 -m pip install -r requirements.txt
 | `CHANGELOG.md` | 版本规则与变更履历 |
 | `test_plan/`、`test_reports/` | 测试计划和独立测试报告 |
 | `../tables/` | 项目所有文件夹和文件的表格清单 |
-| `../tables/` | 项目所有文件夹和文件的表格清单 |
+| `GIT_WORKFLOW.md` | 独立分支、提交与编译信息快照规则 |
 
 ## 行为说明
 
@@ -155,7 +155,7 @@ SKIP_INSTALL=1 ./src/packaging/build.sh
 
 构建脚本依次执行：
 
-1. 递增构建版本后缀。
+1. 快照当前 Git 分支/提交/状态，再递增构建版本后缀。
 2. 使用 PyInstaller 打包 Python、PyQt5、Qt 插件、证书、依赖库和 `ip` 工具。
 3. 审计 ELF 动态库闭包和最低 GLIBC 版本。
 4. 运行单文件 `--self-test`，结果写入 `docs/test_reports/PACKAGE_SELF_TEST.json`。
@@ -215,6 +215,10 @@ SKIP_INSTALL=1 ./src/packaging/build.sh
 - USB 网卡、`vmnet1`、`vmnet8` 等虚拟或新增网卡会随本机地址变化自动刷新。
 
 ## 常见问题
+
+托盘右键选择“关于”，可查看完整版本、开发者显示名、Git 分支/提交、构建前工作树状态、
+UTC 编译时间、目标平台、架构、Python 和打包器。字段可鼠标选中复制；页面使用独立字号和不透明背景。
+单文件从内置快照读取信息，无需 Git 或源码目录；源码模式读取当前仓库。分支与提交流程见 `GIT_WORKFLOW.md`。
 
 | 现象 | 处理方式 |
 |---|---|

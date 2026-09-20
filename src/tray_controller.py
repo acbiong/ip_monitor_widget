@@ -55,7 +55,11 @@ class TrayController:
 
     def _show_about(self) -> None:
         """打开关于页面，显示版本、Git 和编译信息。"""
-        AboutDialog(parent=self.widget).exec_()
+        dialog = AboutDialog(parent=self.widget)
+        try:
+            dialog.exec_()
+        finally:
+            dialog.deleteLater()
 
     def _sync_menu(self) -> None:
         """设置取消可能还原锁定状态，显示菜单时同步勾选值。"""

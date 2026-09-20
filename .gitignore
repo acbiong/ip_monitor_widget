@@ -31,3 +31,13 @@ dist/*
 
 # 本地构建缓存不属于项目源代码
 .cache/
+
+# 本地敏感配置和冻结元数据仅存在于构建缓存或单文件内部
+.env
+.env.*
+!.env.example
+/src/BUILD_INFO.json
+/BUILD_INFO.json
+*.spec.bak
+core
+core.*

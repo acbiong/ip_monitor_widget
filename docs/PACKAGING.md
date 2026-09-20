@@ -72,7 +72,7 @@ sha256sum -c SHA256SUMS
 
 ### 版本管理
 
-基础版本遵循 SemVer：不兼容变更递增 `MAJOR`，新增兼容功能递增 `MINOR`，BUG 修复/性能/文档/打包修复递增 `PATCH`。每次执行 `src/packaging/build.sh` 会先调用 `src/packaging/version_manager.py --bump-build`，自动递增 `src/VERSION.json` 的构建号，并生成如 `0.5.0+build.20260920.1` 的版本后缀。需要开始新的版本线时执行 `python3 src/packaging/version_manager.py --set-base-version X.Y.Z`，不要手工修改构建后缀。
+基础版本遵循 SemVer：不兼容变更递增 `MAJOR`，新增兼容功能递增 `MINOR`，BUG 修复/性能/文档/打包修复递增 `PATCH`。每次执行 `src/packaging/build.sh` 通过 `generate_build_info.py --bump-build` 先快照 Git 状态，再调用版本管理器自动递增 `src/VERSION.json` 的构建号。版本后缀示例为 `0.6.0+build.20260920.3`。需要开始新的版本线时执行 `python3 src/packaging/version_manager.py --set-base-version X.Y.Z`，不要手工修改构建后缀。Git 快照和报告提交的关系见 `GIT_WORKFLOW.md`。
 
 ### 兼容边界
 

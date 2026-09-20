@@ -1,5 +1,18 @@
 {
-  "application_version": "0.5.1+build.20260920.2",
+  "application_version": "0.6.0+build.20260920.2",
+  "git": {
+    "branch": "feature/tray-about-git-info",
+    "commit": "361286eb3742b7486db773cab9f324baa3cbcd32",
+    "commit_short": "361286eb3742",
+    "dirty": true
+  },
+  "build": {
+    "built_at": "2026-09-20T05:29:55.865184+00:00",
+    "target": "deepin 25 x86_64, X11 or available XWayland",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "packager": "PyInstaller 6.22.3"
+  },
   "frozen": true,
   "python": "3.12.13",
   "qt": "5.15.19",

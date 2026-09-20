@@ -8,30 +8,13 @@ import importlib.metadata
 import json
 from pathlib import Path
 import platform
-import subprocess
+import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-def run_git(project: Path, *arguments: str) -> str:
-    """读取当前源代码提交信息。"""
-    try:
-        result = subprocess.run(
-            ["git", "-C", str(project), *arguments],
-            capture_output=True,
-            text=True,
-            timeout=2,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        return ""
-    return result.stdout.strip() if result.returncode == 0 else ""
-
-
-GENERATED_STATUS_PATHS = frozenset({
-    "src/VERSION.json",
-    "docs/BUILD_MANIFEST.json",
-    "docs/NATIVE_DEPENDENCIES.json",
-    "docs/test_reports/PACKAGE_SELF_TEST.json",
-})
+from build_info import read_git_info
+from config import DEVELOPER_NAME
+from version_manager import bump_build, version_file
 
 
 def main() -> int:
@@ -39,31 +22,24 @@ def main() -> int:
     parser.add_argument("--project", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--version-file", required=True, type=Path)
+    parser.add_argument("--bump-build", action="store_true", help="记录 Git 快照后递增编译后缀")
     arguments = parser.parse_args()
     project = arguments.project.resolve()
-    version = json.loads(arguments.version_file.read_text(encoding="utf-8"))
-    commit = run_git(project, "rev-parse", "HEAD") or "未知"
-    raw_status = run_git(project, "status", "--porcelain")
-    # 构建脚本会自动递增 VERSION.json；该生成性改动不应掩盖源代码的 Git 状态。
-    status = "\n".join(
-        line for line in raw_status.splitlines()
-        if line[2:].strip() not in GENERATED_STATUS_PATHS
-    )
-    branch = run_git(project, "branch", "--show-current") or "未知"
+    if arguments.bump_build and arguments.version_file.resolve() != version_file().resolve():
+        parser.error("递增构建号时只能使用项目 src/VERSION.json")
+    git_info = read_git_info(project)
+    version = (bump_build() if arguments.bump_build else
+               json.loads(arguments.version_file.read_text(encoding="utf-8")))
     try:
         packager = f"PyInstaller {importlib.metadata.version('pyinstaller')}"
     except importlib.metadata.PackageNotFoundError:
         packager = "PyInstaller"
     info = {
-        "developer": "Biong",
+        "developer": DEVELOPER_NAME,
         "application_version": version["version"],
-        "git": {
-            "branch": branch,
-            "commit": commit,
-            "commit_short": commit[:12] if commit != "未知" else "未知",
-            "dirty": bool(status) if commit != "未知" else None,
-        },
+        "git": git_info,
         "build": {
+            "git_snapshot_stage": "自动递增构建号之前（包括全部未提交修改）",
             "built_at": datetime.now(timezone.utc).isoformat(),
             "target": "deepin 25 x86_64, X11 or available XWayland",
             "architecture": platform.machine(),

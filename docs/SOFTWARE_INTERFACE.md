@@ -463,3 +463,13 @@ flowchart TD
 ```
 
 资源和依赖校验结果见 BUILD_MANIFEST.json、NATIVE_DEPENDENCIES.json 和 `docs/test_reports/`；版本状态见 `src/VERSION.json`，版本规则见 CHANGELOG.md。不能将同机空白环境测试表述成已在所有其他 deepin 版本和硬件上验证。
+
+## 13. 关于页面与 Git 快照协议
+
+- `TrayController._show_about()` 由“关于”菜单动作触发，在独立模态循环中显示 AboutDialog，结束时 `deleteLater()` 释放，不积累隐藏子窗口。
+- `AboutDialog(parent)` 输入主窗口父对象，只读展示数据。使用应用默认字体和调色板，不继承监视器白色大字样式或透明度。信息标签为纯文本，可选中复制，不执行分支名中的富文本。
+- `build_info.read_git_info(project: Path) -> dict` 输出 `branch`、`commit`、`commit_short`（字符串）及 `dirty`（true/false/null）。无 Git/无仓库/超时不崩溃；状态命令失败返回 null。未跟踪和已暂存修改都计入状态，忽略文件遵循 Git 规则。
+- `build_info.load_build_info() -> dict` 输出 `developer`、`git`、`build`，冻结模式还包含 `application_version`。源码模式读取当前 Git；冻结模式仅读取资源中的 BUILD_INFO.json，失败使用未知状态，绝不调用目标电脑 Git。
+- `generate_build_info.py --project PATH --output PATH --version-file PATH [--bump-build]` 输出 UTF-8 JSON 文件和相同 stdout JSON。`--bump-build` 只接受项目版本文件，先记录 Git，再递增编译号，避免把构建本身当成源码变更。
+- `build` 字段包含 `built_at`（UTC ISO 8601）、`target`、`architecture`、`python`、`packager` 和 `git_snapshot_stage`。BUILD_INFO.json 位于构建缓存；PyInstaller 内置后目标机无需 `.git` 或 Git。
+- 自检额外验证内置元数据版本一致；冒烟测试通过真实托盘动作连续两次打开/关闭关于页，检查内容、图标、样式和对象释放。
