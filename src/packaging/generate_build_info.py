@@ -39,7 +39,7 @@ def main() -> int:
     # 构建脚本会自动递增 VERSION.json；该生成性改动不应掩盖源代码的 Git 状态。
     status = "\n".join(
         line for line in raw_status.splitlines()
-        if line[3:].strip() != "src/VERSION.json"
+        if line[2:].strip() != "src/VERSION.json"
     )
     branch = run_git(project, "branch", "--show-current") or "未知"
     try:
