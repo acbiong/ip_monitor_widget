@@ -77,11 +77,12 @@ def smoke_test() -> int:
     """使用临时配置显示三秒后自动退出，只采集本地信息，不查询公网。"""
     from PyQt5.QtCore import QCoreApplication, QEvent, QSettings, QTimer, Qt
     from PyQt5.QtGui import QColor, QIcon, QPalette
-    from PyQt5.QtWidgets import QApplication, QDialogButtonBox, QLabel, QLineEdit, QPushButton, QSpinBox
+    from PyQt5.QtWidgets import QApplication, QCheckBox, QDialogButtonBox, QLabel, QLineEdit, QPushButton, QSpinBox
     from about_dialog import AboutDialog
     from config import APP_NAME, ICON_PATH
     from settings_store import SettingsStore
     from settings_dialog import SettingsDialog
+    from autostart import AutostartManager
     from tray_controller import TrayController
 
     app = QApplication([])
@@ -93,6 +94,7 @@ def smoke_test() -> int:
         # 空地址列表保证后台入口不发送网络请求，同时覆盖冻结后的真实 QProcess 链路。
         fixture = [{"name": "打包自检", "ips": []}]
         controller = TrayController(app, network_provider=lambda: fixture, settings_store=SettingsStore(settings))
+        controller.widget.autostart_manager = AutostartManager(config_home=Path(directory) / "config")
         controller.route_menu.service.result.connect(
             lambda result: report.update(route_menu_readonly=bool(result.get("ok"))))
         controller.route_menu.refresh()
@@ -163,11 +165,14 @@ def smoke_test() -> int:
                     dialog.opacity.setValue(95)
                     dialog.interval.setValue(10000)
                     dialog.public_ip_interval.setValue(10)
+                    report["autostart_default_off"] = not dialog.autostart.isChecked()
+                    dialog.autostart.setChecked(True)
+                    report["autostart_deferred"] = not controller.widget.autostart_manager.path.exists()
                     QApplication.processEvents()
                     report["settings_preview"] = all(controller.widget.values[key] == value
                                                       for key, value in dialog.current_values().items())
                     report["public_ip_interval_preview"] = controller.widget.public_timer.interval() == 10000
-                    text_widgets = dialog.findChildren((QLabel, QSpinBox, QLineEdit, QPushButton))
+                    text_widgets = dialog.findChildren((QLabel, QSpinBox, QLineEdit, QPushButton, QCheckBox))
                     report["settings_black_text"] = all(
                         child.palette().color(role) == QColor("#000000")
                         for child in text_widgets
@@ -187,12 +192,15 @@ def smoke_test() -> int:
                         controller.widget.values[key] == value == dialog.defaults[key]
                         for key, value in dialog.current_values().items())
                     report["public_ip_interval_default"] = controller.widget.public_timer.interval() == 60000
+                    report["autostart_reset_default"] = not dialog.autostart.isChecked()
                     dialog.font_size.setValue(24)
                     dialog.public_ip_interval.setValue(120)
+                    dialog.autostart.setChecked(True)
                     results.append(all(report[key] for key in (
                         "settings_preview", "settings_black_text", "settings_style_isolated",
                         "settings_fixed_size", "settings_restore_defaults", "public_ip_interval_preview",
-                        "public_ip_interval_default")))
+                        "public_ip_interval_default", "autostart_default_off", "autostart_deferred",
+                        "autostart_reset_default")))
                     buttons.button(QDialogButtonBox.Save if save else QDialogButtonBox.Cancel).click()
                 except Exception as error:
                     report["settings_error"] = str(error)
@@ -209,12 +217,17 @@ def smoke_test() -> int:
                                                  == controller.widget.store.load()["font_size"]
                                                  and controller.widget.store.load()["public_ip_interval"] == 120
                                                  and controller.widget.public_timer.interval() == 120000)
+                    report["autostart_saved"] = controller.widget.autostart_manager.is_enabled()
                 else:
                     report["settings_cancelled"] = (controller.widget.values == original_values
                         and controller.widget.public_timer.interval() == original_values["public_ip_interval"] * 1000)
+                    report["autostart_cancelled"] = not controller.widget.autostart_manager.path.exists()
                 results.append(not controller.widget.findChildren(SettingsDialog))
             report["settings_open_close"] = (all(results) and report["settings_saved"]
-                                               and report["settings_cancelled"])
+                                               and report["settings_cancelled"] and report["autostart_saved"]
+                                               and report["autostart_cancelled"])
+            controller.widget.autostart_manager.set_enabled(False)
+            report["autostart_disabled"] = not controller.widget.autostart_manager.is_enabled()
 
         QTimer.singleShot(1000, check_settings)
 
@@ -239,6 +252,6 @@ def smoke_test() -> int:
     report["ok"] = status == 0 and all(report.get(key, False) for key in
                                      ("icon_rendered", "window_visible", "route_detection",
                                       "background_query", "no_remaining_workers", "about_open_close",
-                                      "settings_open_close", "route_menu_readonly"))
+                                      "settings_open_close", "route_menu_readonly", "autostart_disabled"))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1

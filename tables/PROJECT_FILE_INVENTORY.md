@@ -1,6 +1,6 @@
 # 项目文件与目录清单
 
-> 生成日期：2026-09-20；共 187 个文件夹、206 个文件。
+> 生成日期：2026-09-20；共 187 个文件夹、209 个文件。
 
 覆盖项目文件、资源、报告、发布产物和 Git 顶层目录；`.git` 内部对象及忽略的编译缓存不展开。
 
@@ -32,6 +32,7 @@
 | docs/test_plan | test_plan | 文件夹 | 测试计划目录，与测试报告分离。 |
 | docs/test_plan/TEST_PLAN.md | TEST_PLAN.md | 文件 | 模块、集成、回归和交付测试计划。 |
 | docs/test_reports | test_reports | 文件夹 | 测试执行结果和交付验证报告目录。 |
+| docs/test_reports/AUTOSTART_REPORT.md | AUTOSTART_REPORT.md | 文件 | 用户登录自启动测试、桌面格式及特殊路径解析验证报告。 |
 | docs/test_reports/GIT_ABOUT_REPORT.md | GIT_ABOUT_REPORT.md | 文件 | Git 元数据、关于页生命周期与构建快照验证结果。 |
 | docs/test_reports/PACKAGE_SELF_TEST.json | PACKAGE_SELF_TEST.json | 文件 | 单文件无 GUI 依赖与内部入口自检报告。 |
 | docs/test_reports/PACKAGE_SMOKE_TEST.json | PACKAGE_SMOKE_TEST.json | 文件 | 隔离图形会话中的窗口和后台链路冒烟报告。 |
@@ -356,6 +357,7 @@
 | src | src | 文件夹 | 源代码、资源和构建脚本目录。 |
 | src/VERSION.json | VERSION.json | 文件 | 版本状态，保存基础版本、构建号、构建后缀和完整版本。 |
 | src/about_dialog.py | about_dialog.py | 文件 | 固定尺寸、名称居中的关于页面，显示版本、开发者、Git 和编译信息。 |
+| src/autostart.py | autostart.py | 文件 | 用户级 XDG 登录自启动，管理 desktop 启动项及安全路径转义。 |
 | src/build_info.py | build_info.py | 文件 | 运行时读取源码 Git 信息或单文件内置编译信息。 |
 | src/config.py | config.py | 文件 | 应用常量、默认设置、公网服务地址和超时参数。 |
 | src/cpu_temperature.py | cpu_temperature.py | 文件 | 识别并读取 CPU 温度传感器。 |
@@ -388,6 +390,7 @@
 | src/settings_store.py | settings_store.py | 文件 | 校验并持久化用户设置、窗口位置和锁定状态。 |
 | src/system_metrics.py | system_metrics.py | 文件 | 采集 CPU、内存、磁盘、流量和温度等系统指标。 |
 | src/tests | tests | 文件夹 | 源代码回归测试；网络写操作均使用模拟对象。 |
+| src/tests/test_autostart.py | test_autostart.py | 文件 | 自启动开关、路径、原子文件提交和设置保存取消回归测试。 |
 | src/tests/test_interface_dns.py | test_interface_dns.py | 文件 | DNS 代理回退、超时预算和 HTTPS 网卡隔离回归测试。 |
 | src/tests/test_public_ip_interval.py | test_public_ip_interval.py | 文件 | 公网刷新间隔配置、持久化、预览回滚及自动更新回归测试。 |
 | src/tests/test_route_policy.py | test_route_policy.py | 文件 | 策略路由分类、默认接管保护和 Tailscale 兼容回归测试。 |

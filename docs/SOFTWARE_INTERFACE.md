@@ -553,3 +553,34 @@ flowchart TD
 - `MonitorWidget.public_timer` 启动使用 `public_ip_interval * 1000`；`_update_public_ip_interval()` 仅间隔变化时 setInterval。预览即时重新计时，取消恢复原间隔并重新计时，不恢复已流逝的剩余毫秒；修改其他设置不推迟查询。
 - 原 `fetch_public_ip()` 和 PublicIPService 继续负责独立网卡查询、合并在途任务、超时、重试和过期结果隔离。本机地址不变仍定期产生新查询；不引入网络写操作。
 - `--smoke-test` 新增 `public_ip_interval_preview`、`public_ip_interval_default`，保存/取消检查同时断言持久化值和计时器间隔。任意检查失败使总结果失败。
+
+## 18. 用户登录自启动协议（0.9.0）
+
+### 模块接口
+
+| 接口 | 输入 | 输出/副作用 |
+|---|---|---|
+| `autostart.launch_command()` | 当前运行环境 | 冻结模式 `[外部可执行文件绝对路径]`；源码模式 `[当前解释器绝对路径, main.py绝对路径]` |
+| `quote_exec_argument(argument)` | 单个路径字符串 | desktop Exec 转义字符串，不经过 shell；空值/换行/NUL 抛 ValueError |
+| `AutostartManager(config_home=None, command=None)` | 可选配置根目录/启动路径数组，测试可注入 | 计算固定自启动文件路径，不创建目录或写入 |
+| `is_enabled()` | 无 | bool：读取实际用户文件；缺省 false，格式/权限问题抛 ValueError/OSError |
+| `set_enabled(enabled)` | bool | 保存时原子写入启用项或 Hidden 禁用项；关闭且本已关闭不写文件；错误抛出，不伪造成功 |
+
+### 文件协议
+
+路径：`$XDG_CONFIG_HOME/autostart/org.biong.IPMonitorWidget.desktop`；未配置或 XDG 路径非绝对时用 `~/.config`。
+UTF-8 desktop Entry，Type=Application，Name 为软件名，Exec 为逐参数双引号转义，Terminal=false。
+启用：Hidden=false、X-GNOME-Autostart-enabled=true；禁用：Hidden=true、X-GNOME-Autostart-enabled=false。
+文件权限 0644，父目录内临时写入、fsync 后 os.replace 原子提交；失败清理临时文件。拒绝覆盖符号链接或无法解析的文件，不改其他启动项。
+不写系统级 /etc/xdg、不调用 shell/sudo、不生成守护进程或修改用户登录行为。默认关闭表示没有本软件用户启动项；其他工具自行创建的不同文件名启动项不在管理范围。
+
+### 设置窗口协议
+
+`SettingsDialog(..., autostart_manager=None)` 可注入测试目录。`autostart: QCheckBox` 从实际文件初始化，不加入主窗口视觉配置字典，不添加重复 QSettings 布尔状态。
+修改开关不发主窗口预览、不立即写文件；保存先提交自启动，成功后沿用 values_applied 和 accept；失败以 QMessageBox 提示并保持对话框打开。取消不写自启动文件。
+恢复默认取消勾选，但仍须保存；已有视觉设置实时预览/取消协议不变。设置窗口仍固定尺寸、黑字浅底。
+
+### 诊断与边界
+
+`--smoke-test` 在临时目录注入 AutostartManager，新增 autostart_default_off、autostart_deferred、autostart_reset_default、autostart_cancelled、autostart_saved、autostart_disabled 布尔检查，任一失败影响总结果。
+自启动依赖桌面 XDG 登录会话，不代表系统开机登录前启动；不添加多实例管理。文件移动后原启动路径无效，需从新位置保存启用更新。自动测试不注册真实自启动或触发系统注销。

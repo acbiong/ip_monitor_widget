@@ -9,11 +9,13 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QDialog,
+    QCheckBox,
     QDialogButtonBox,
     QFormLayout,
     QHBoxLayout,
     QLabel,
     QLayout,
+    QMessageBox,
     QSlider,
     QSpinBox,
     QVBoxLayout,
@@ -21,6 +23,7 @@ from PyQt5.QtWidgets import (
 )
 
 from config import ICON_PATH, PUBLIC_IP_INTERVAL_LIMITS
+from autostart import AutostartManager
 
 
 class SettingsDialog(QDialog):
@@ -34,8 +37,9 @@ class SettingsDialog(QDialog):
     preview_changed = pyqtSignal(dict)
     values_applied = pyqtSignal(dict)
 
-    def __init__(self, values: dict, defaults: dict, parent=None) -> None:
+    def __init__(self, values: dict, defaults: dict, parent=None, autostart_manager=None) -> None:
         super().__init__(parent)
+        self.autostart_manager = autostart_manager or AutostartManager()
         self.defaults = dict(defaults)
         self.setWindowTitle("监视器设置")
         self.setModal(True)
@@ -88,12 +92,23 @@ class SettingsDialog(QDialog):
         self.public_ip_interval.setValue(int(values["public_ip_interval"]))
         self.public_ip_interval.setToolTip("定时重新查询各网卡的公网 IP；查询进行中时不重复启动。默认 60 秒。")
 
+        self.autostart = QCheckBox("登录桌面后自动启动")
+        self.autostart.setToolTip("默认关闭，点击保存后生效；取消不改变启动项。移动程序后需重新启用。")
+        self.autostart_status = QLabel("点击保存后生效；取消不改变启动项。")
+        try:
+            self.autostart.setChecked(self.autostart_manager.is_enabled())
+        except (OSError, ValueError) as error:
+            self.autostart_status.setText("自启动状态读取失败，请检查启动项权限或格式。")
+            self.autostart_status.setToolTip(str(error))
+
         form = QFormLayout()
         form.setLabelAlignment(Qt.AlignRight)
         form.addRow("文字大小", self.font_size)
         form.addRow("背景透明度", opacity_row)
         form.addRow("系统指标刷新间隔", self.interval)
         form.addRow("公网 IP 获取间隔", self.public_ip_interval)
+        form.addRow("开机启动", self.autostart)
+        form.addRow("", self.autostart_status)
         form.addRow("窗口层级", QLabel("始终置底（不遮挡其他软件）"))
 
         buttons = QDialogButtonBox(
@@ -146,11 +161,17 @@ class SettingsDialog(QDialog):
         self.opacity.setValue(round(float(self.defaults["opacity"]) * 100))
         self.interval.setValue(int(self.defaults["interval"]))
         self.public_ip_interval.setValue(int(self.defaults["public_ip_interval"]))
+        self.autostart.setChecked(False)
         for control in controls:
             control.blockSignals(False)
         self._update_opacity_text(self.opacity.value())
         self._emit_preview()
 
     def accept(self) -> None:
+        try:
+            self.autostart_manager.set_enabled(self.autostart.isChecked())
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(self, "开机启动设置失败", f"未能保存启动项，设置窗口将保持打开。\n{error}")
+            return
         self.values_applied.emit(self.current_values())
         super().accept()

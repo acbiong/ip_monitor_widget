@@ -54,6 +54,7 @@ class MonitorWidget(QFrame):
         self.default_route_service.result.connect(self.set_default_routes)
         self._shutting_down = False
         self.settings_dialog = None
+        self.autostart_manager = None
         self._preview_snapshot = None
         # 合并异步地址/指标变化触发的布局请求，等待 Qt 更新文字尺寸后再适配窗体。
         self._layout_timer = QTimer(self)
@@ -353,7 +354,8 @@ class MonitorWidget(QFrame):
         original_values = dict(self.values)
         original_geometry = self.saveGeometry()
         self._preview_snapshot = (original_values, original_geometry)
-        dialog = SettingsDialog(self.values, self.DEFAULTS, parent=self)
+        dialog = SettingsDialog(self.values, self.DEFAULTS, parent=self,
+                                autostart_manager=self.autostart_manager)
         self.settings_dialog = dialog
         self._restore_settings_dialog_geometry(dialog)
         dialog.preview_changed.connect(self.preview_settings)
