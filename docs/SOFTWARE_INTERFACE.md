@@ -483,3 +483,41 @@ flowchart TD
 `SettingsDialog` 使用局部对象名选择器覆盖父窗口样式，标签、输入和按钮均为黑字，窗口背景为浅色且完全不透明。字号取应用字体，不跟随主窗口预览；根布局使用 `QLayout.SetFixedSize` 按控件内容确定固定尺寸。`preview_changed(dict)`、`values_applied(dict)` 与位置持久化协议保持不变。
 
 `--smoke-test` 新增 `settings_preview`、`settings_black_text`、`settings_style_isolated`、`settings_fixed_size`、`settings_restore_defaults`、`settings_cancelled`、`settings_saved`、`settings_open_close` 布尔字段；实际托盘动作验证取消和保存两条路径，任一检查失败会使总结果为 false。测试使用临时配置，不修改用户配置。
+
+## 14. 默认出口控制协议（0.7.0）
+
+### 14.1 模块
+
+| 模块 | 输入 | 输出/职责 |
+|---|---|---|
+| `route_menu.RouteMenu` | 托盘菜单、托盘对象、监视器、可注入 service | 二级菜单、按真实地址族勾选、禁用原因、系统通知；仅明确点击触发写任务 |
+| `route_switch_service.RouteSwitchService` | `refresh()`、`switch(name, uuid)` | `result(dict)`：枚举/切换结果；`finished(dict)`：切换完成通知；QProcess 并发数为 1 |
+| `route_switch_worker` | stdin 单个 JSON | stdout 单个 JSON；读系统 D-Bus 与主路由表；经授权临时重应用和检查点回滚 |
+| `src/tests/test_route_switch.py` | 模拟路由、模拟 D-Bus/菜单对象 | unittest 成功/失败；不写真实网络 |
+
+### 14.2 内部进程接口
+
+`main.py --default-route-control` 或单文件同名参数，仅用于内部任务，不创建 GUI。
+输入最多 8193 字节：`{"action":"list"}` 或 `{"action":"switch","name":"网卡名称","uuid":"菜单读取的活动连接 UUID"}`。
+无任意命令、网关或脚本字段；不执行 shell。
+
+成功响应：`{"ok":true,"choices":[...],"current":{"ipv4":[...],"ipv6":[...]},"message":"可选说明"}`。
+每个 choice 含 `name`、`ips`、`uuid`、`families`（已有默认路由族）、`default_for`（当前出口族）、`enabled`、`reason`。
+失败响应：`{"ok":false,"message":"原因及回滚状态"}`。成功/失败退出码为 0/1。
+枚举内部限时 10 秒，切换 65 秒；父进程看门狗分别为 12/75 秒，响应上限 256 KiB。退出终止子进程，不阻塞 GUI 等待认证。
+
+### 14.3 修改范围与事务
+
+1. 读取主表默认路由/策略规则、NetworkManager 设备/活动连接/权限；仅在线有效 IP 网卡进入菜单。
+2. 检查 UUID、受管理状态、已有默认路由、权限及无 VPN/策略/多路径冲突。
+3. 获取 `GetAppliedConnection(0)` 和配置版本；复制配置，仅修改目标地址族的 route-metric 以及显式默认 route-data metric。
+4. 目标 metric 设为 1；若竞争出口 metric ≤1，临时设为 100。目标已经独占默认出口的地址族不改动。连接路由优先级也会遵循 route-metric，特定静态非默认路由的显式 metric 不变。
+5. 对涉及设备 `CheckpointCreate(...,90,0)`，经系统授权调用 `Reapply(settings,version,1)`；标志 1 保留外部 IP 配置，要求 NM 1.42+。不调用连接档案 Update/Save。
+6. 重新枚举并确认目标 UUID、可用性及真实默认出口；成功释放检查点。失败立即回滚并检查返回状态，回滚未确认时明确告知用户。进程意外消失仍由系统检查点超时兜底。
+
+目标缺少某个地址族的默认路由时不迁移该地址族，不创建网关；不支持的复杂网络保持只读。自动回滚并不等于任何环境下都能保证网络恢复，接口必须保留失败提示。
+
+### 14.4 诊断
+
+`--self-test` 新增 `route_control_entry` 与 dbus-next 版本；仅发送无效操作，不访问总线。
+`--smoke-test` 新增 `route_menu_readonly`，真实读取菜单候选但不切换；退出清理检查包含出口服务子进程。

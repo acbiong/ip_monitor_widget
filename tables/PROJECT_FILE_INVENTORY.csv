@@ -28,6 +28,7 @@ docs/test_reports,test_reports,文件夹,测试执行结果和交付验证报告
 docs/test_reports/GIT_ABOUT_REPORT.md,GIT_ABOUT_REPORT.md,文件,Git 元数据、关于页生命周期与构建快照验证结果。
 docs/test_reports/PACKAGE_SELF_TEST.json,PACKAGE_SELF_TEST.json,文件,单文件无 GUI 依赖与内部入口自检报告。
 docs/test_reports/PACKAGE_SMOKE_TEST.json,PACKAGE_SMOKE_TEST.json,文件,隔离图形会话中的窗口和后台链路冒烟报告。
+docs/test_reports/ROUTE_SWITCH_REPORT.md,ROUTE_SWITCH_REPORT.md,文件,默认出口菜单及切换功能测试结果和未实机切换边界。
 docs/test_reports/SETTINGS_DIALOG_REPORT.md,SETTINGS_DIALOG_REPORT.md,文件,设置页黑字浅底、固定尺寸及预览保存回归报告。
 docs/test_reports/VALIDATION_REPORT.md,VALIDATION_REPORT.md,文件,单文件验证范围、结果和兼容边界报告。
 docs/third_party_licenses,third_party_licenses,文件夹,第三方 Python、Qt 和系统库许可归档目录。
@@ -365,10 +366,15 @@ src/public_ip_service.py,public_ip_service.py,文件,公网查询队列、并发
 src/requirements.txt,requirements.txt,文件,源码运行依赖清单。
 src/resources,resources,文件夹,程序图标等运行时资源目录。
 src/resources/icon.svg,icon.svg,文件,系统托盘和窗口使用的 SVG 图标。
+src/route_menu.py,route_menu.py,文件,默认出口二级菜单、真实勾选、禁用原因与切换通知。
+src/route_switch_service.py,route_switch_service.py,文件,默认出口控制 QProcess 服务，负责并发限制、超时与退出清理。
+src/route_switch_worker.py,route_switch_worker.py,文件,NetworkManager 临时默认路由切换与检查点回滚后台模块。
 src/run.sh,run.sh,文件,源码启动脚本。
 src/settings_dialog.py,settings_dialog.py,文件,黑字浅底、固定尺寸的设置窗口及实时预览、取消回滚和默认值恢复。
 src/settings_store.py,settings_store.py,文件,校验并持久化用户设置、窗口位置和锁定状态。
 src/system_metrics.py,system_metrics.py,文件,采集 CPU、内存、磁盘、流量和温度等系统指标。
+src/tests,tests,文件夹,源代码回归测试；网络写操作均使用模拟对象。
+src/tests/test_route_switch.py,test_route_switch.py,文件,默认出口规划、授权回滚、菜单与安全边界的隔离单元测试。
 src/tray_controller.py,tray_controller.py,文件,系统托盘菜单、设置窗口、位置恢复和退出清理。
 src/utils.py,utils.py,文件,速率格式化、网络签名和通用辅助函数。
 src/version.py,version.py,文件,运行时读取 VERSION.json 并提供当前完整版本字符串。

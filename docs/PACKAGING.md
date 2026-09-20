@@ -1,6 +1,6 @@
 # 单文件交付与目录说明
 
-更新日期：2026-09-20。当前基础版本：`0.6.2`。构建目标：**deepin 25、x86_64、glibc 2.38 或更高、X11 桌面或可用的 XWayland**。
+更新日期：2026-09-20。当前基础版本：`0.7.0`。构建目标：**deepin 25、x86_64、glibc 2.38 或更高、X11 桌面或可用的 XWayland**。
 
 ## 1. 项目分类
 
@@ -118,3 +118,9 @@ cd /home/biong/Documents/code/ip_monitor_widget
 PyInstaller 构建环境和系统原生库也影响产物，因此锁定 Python 软件包并不意味着不同系统上生成的二进制逐字节一致；每次发布以生成的 manifest、依赖审计和 SHA256SUMS 为准。
 
 第三方组件的原始许可声明见 `third_party_licenses/` 及单文件内置元数据/许可资源。本次没有替用户源代码新增或选择许可证。
+
+## 0.7.0 默认出口控制依赖
+
+单文件新增内置 `dbus-next==0.2.3`，不依赖目标电脑安装 Python、nmcli 或 dbus-next。
+切换依赖目标系统的 NetworkManager 1.42+、系统 D-Bus 与桌面 Polkit 认证代理；没有这些主机服务时明确提示不可用，其他监测功能仍可使用。
+`--self-test` 使用无效操作验证控制子进程入口，不连接系统总线、不改变路由；`--smoke-test` 额外只读枚举真实网卡。

@@ -1,6 +1,6 @@
 # 测试计划
 
-版本：0.6.2
+版本：0.7.0
 
 ## 1. 目的
 
@@ -72,3 +72,13 @@ dist/DesktopMonitor-deepin25-x86_64 --smoke-test
 - 尝试放大/缩小设置页，检查当前、最小、最大尺寸相等。
 - 点击还原默认设置并检查预览；取消恢复原配置；第二次打开保存，检查临时 QSettings 记录正确且对话框已释放。
 - 源码及单文件执行 `--smoke-test`；设置页所有 `settings_*` 检查为 true。
+
+## 0.7.0 默认出口菜单与切换
+
+- 使用 `QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME= python3 -B -m unittest discover -s src/tests -v` 运行回归，需先安装 requirements.txt；所有写操作由模拟对象代替。
+- 覆盖 IPv4/IPv6、双栈与分离出口、同 metric 竞争、静态默认路由、无网关、链路断开、策略路由、连接 UUID 更换。
+- 覆盖检查点拒权不修改、Reapply 失败回滚、验证失败回滚、取消回滚、回滚失败提示；验证不调用永久设置更新方法。
+- 覆盖实际勾选、禁止乐观勾选、禁用 vmnet 项、断开隐藏及错误提示。
+- 真实系统只读 `--default-route-control` list 并运行 GUI `--smoke-test`；核对实际默认出口，不自动执行真实切换。
+- 单文件清空外部 Python/Qt/PATH 环境运行自检和冒烟；确认内置 dbus-next 和内部入口可用。
+- 人工验收（需用户允许及两张有网关的网卡）：分别切换 IPv4/双栈，检查系统授权、路由和互联网连通性；断开目标或拒绝授权验证提示；重连确认永久配置未被修改。

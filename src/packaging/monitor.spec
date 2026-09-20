@@ -18,7 +18,7 @@ if not ip_command:
 
 metadata = []
 for package in ("PyQt5", "PyQt5-Qt5", "PyQt5-sip", "psutil", "requests", "dnspython",
-                "certifi", "urllib3", "charset-normalizer", "idna"):
+                "certifi", "urllib3", "charset-normalizer", "idna", "dbus-next"):
     metadata.extend(copy_metadata(package))
 
 # PyInstaller 默认不收集部分桌面图形库；本包面向相同 deepin 25 ABI，显式内置。

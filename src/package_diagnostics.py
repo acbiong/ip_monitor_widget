@@ -32,7 +32,7 @@ def self_test() -> int:
         "qt": qVersion(),
         "qt_binding_build": QT_VERSION_STR,
         "packages": {name: importlib.metadata.version(name) for name in
-                     ("PyQt5", "psutil", "requests", "dnspython", "certifi")},
+                     ("PyQt5", "psutil", "requests", "dnspython", "certifi", "dbus-next")},
         "checks": {},
     }
     checks = report["checks"]
@@ -60,6 +60,14 @@ def self_test() -> int:
                                       == {"status": "failed", "addresses": []})
     except (OSError, ValueError, subprocess.TimeoutExpired):
         checks["background_entry"] = False
+    arguments = ([sys.executable] if frozen else [sys.executable, str(root / "main.py")])
+    try:
+        result = subprocess.run(arguments + ["--default-route-control"], input=b'{"action":"invalid"}',
+                                capture_output=True, timeout=15, check=False)
+        checks["route_control_entry"] = (result.returncode == 1 and json.loads(result.stdout)
+                                          == {"ok": False, "message": "无效的默认出口操作"})
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        checks["route_control_entry"] = False
     report["ok"] = all(checks.values())
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1
@@ -85,6 +93,9 @@ def smoke_test() -> int:
         # 空地址列表保证后台入口不发送网络请求，同时覆盖冻结后的真实 QProcess 链路。
         fixture = [{"name": "打包自检", "ips": []}]
         controller = TrayController(app, network_provider=lambda: fixture, settings_store=SettingsStore(settings))
+        controller.route_menu.service.result.connect(
+            lambda result: report.update(route_menu_readonly=bool(result.get("ok"))))
+        controller.route_menu.refresh()
 
         def check_about():
             """通过真实托盘动作打开关于页，检查内容并自动关闭两次。"""
@@ -213,12 +224,13 @@ def smoke_test() -> int:
         status = app.exec_()
         controller.widget.shutdown()
         report["no_remaining_workers"] = (not controller.widget.public_ip_service._active
-                                            and not controller.widget.default_route_service._active)
+                                            and not controller.widget.default_route_service._active
+                                            and controller.route_menu.service.process is None)
         controller.widget.close()
         controller.tray.hide()
     report["ok"] = status == 0 and all(report.get(key, False) for key in
                                      ("icon_rendered", "window_visible", "route_detection",
                                       "background_query", "no_remaining_workers", "about_open_close",
-                                      "settings_open_close"))
+                                      "settings_open_close", "route_menu_readonly"))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1

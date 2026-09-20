@@ -2,3 +2,4 @@ PyQt5>=5.15
 psutil>=5.9
 requests>=2.31
 dnspython>=2.2
+dbus-next==0.2.3

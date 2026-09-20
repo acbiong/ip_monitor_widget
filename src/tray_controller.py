@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QAction, QApplication, QMenu, QSystemTrayIcon
 from about_dialog import AboutDialog
 from config import APP_NAME, ICON_PATH
 from monitor_widget import MonitorWidget
+from route_menu import RouteMenu
 
 
 class TrayController:
@@ -21,6 +22,7 @@ class TrayController:
         app.aboutToQuit.connect(self.widget.shutdown)
         self.menu = QMenu()
         self._build_menu()
+        app.aboutToQuit.connect(self.route_menu.shutdown)
         self.menu.aboutToShow.connect(self._sync_menu)
         self.tray.setContextMenu(self.menu)
         self.tray.activated.connect(self._on_activated)
@@ -35,6 +37,8 @@ class TrayController:
         lock_action.setChecked(self.widget.values["locked"])
         lock_action.triggered.connect(self.widget.toggle_lock)
         self.menu.addAction(lock_action)
+
+        self.route_menu = RouteMenu(self.menu, self.tray, self.widget)
 
         self.menu.addSeparator()
         about_action = QAction("关于", self.menu)
