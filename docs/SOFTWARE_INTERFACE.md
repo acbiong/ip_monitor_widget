@@ -45,8 +45,8 @@ CPU 为 `cpu_percent(interval=None)` 的连续采样值；首次初始化建立�
 
 - 直连阶段总协作预算 2.5 秒；每个地址族最多选择一个源地址，优先 IPv4，然后 IPv6。
 - 通过 urllib3 连接池 `source_address=(local_ip, 0)` 绑定本地源地址，Linux 还设置 `SO_BINDTODEVICE` 绑定网卡设备，直连时禁用环境代理。设备绑定失败不会静默降级为未绑定连接。
-- `interface_dns.py` 使用系统配置的非回环、同地址族 DNS 服务器，通过绑定相同设备及源地址的 UDP 套接字解析 A/AAAA；各服务器分摊本次解析预算。TCP 建连时使用解析出的地址，随后恢复原域名用于 TLS 证书校验、SNI 和 HTTP Host，不禁用证书验证。
-- 系统仅有本机 DNS 代理或没有同地址族的外部 DNS 时保留系统解析；此路径依然受系统 DNS 路由影响，并受进程看门狗约束。程序不更改系统 DNS，也不添加额外公共 DNS 服务器。
+- `interface_dns.py` 使用系统配置的非回环、同地址族 DNS 服务器，通过绑定相同设备及源地址的 UDP 套接字解析 A/AAAA；各服务器分摊最多一半解析预算，另一半预留给系统 DNS 回退。TCP 建连时使用解析出的地址，随后恢复原域名用于 TLS 证书校验、SNI 和 HTTP Host，不禁用证书验证。
+- 设备绑定解析失败、仅有回环 DNS 代理或没有同地址族外部 DNS 时，在剩余总预算内调用系统配置的 dnspython Resolver.resolve，指定 lifetime 和 search=False；不调用无独立超时的 getaddrinfo。此路径兼容 Tailscale 等非回环 DNS 代理，仍受进程看门狗约束。程序不更改系统 DNS，也不添加额外公共 DNS 服务器。
 - 连接超时上限 0.6 秒、读超时上限 1 秒，并按剩余预算缩短。
 - requests 的读/连接超时并不保证 DNS 或整次请求准时结束。因此父进程从任务启动起另设 **6000 ms 看门狗**，超时杀掉该子进程。本网卡任务失败即提交 failed，不等待其他网卡是否成功。
 - 6 秒针对**每个已启动任务**，不含排队；N 张网卡首轮最坏需约 `ceil(N/4) × 6 秒` 加进程和事件调度开销，不作实时系统级时限保证。
@@ -72,7 +72,7 @@ flowchart TD
     View --> Service[public_ip_service.py 异步任务调度]
     Service -->|QProcess stdin/stdout JSON| Child[public_ip_lookup.py 子进程]
     Child --> Resolver[interface_dns.py 设备DNS解析]
-    Resolver -->|绑定设备的UDP查询| DNS[系统配置的DNS服务器]
+    Resolver -->|优先设备绑定/限时系统回退| DNS[系统配置的DNS服务器]
     Child -->|HTTPS GET| Remote[公网地址回显服务]
     View --> Utils[utils.py 格式化与签名]
     Service --> Utils
@@ -89,7 +89,7 @@ flowchart TD
 | `utils.py` | 数据格式化与稳定签名 | 速率、网卡列表 | 文本、元组，无 I/O |
 | `network.py` | 枚举在线网卡 | OS 网络状态 | 网卡快照，无外网访问 |
 | `default_route.py` | 默认出口选择、命令超时及回收 | ip 命令 JSON 路由列表 | IPv4/IPv6 设备名快照，无外网请求 |
-| `interface_dns.py` | 绑定设备进行域名解析 | 域名、源地址、设备、超时 | 目标地址列表，DNS I/O |
+| `interface_dns.py` | 设备绑定解析及限时系统 DNS 回退 | 域名、源地址、设备、超时 | 目标地址列表，DNS I/O |
 | `public_ip_lookup.py` | 单网卡公网 HTTP 查询 | JSON 网卡对象 | JSON 查询结果，HTTPS I/O |
 | `public_ip_service.py` | 限流、排队、超时、代次隔离 | 网卡快照 | Qt 结果信号，管理子进程 |
 | `cpu_temperature.py` | 识别 CPU 温度 | psutil、thermal 文件 | 温度文本或“不可用” |
@@ -358,7 +358,7 @@ Content-Type: text/plain
 
 ### 7.3 设备 DNS 查询
 
-使用 dnspython 构造标准 DNS A/AAAA 递归查询，通过 UDP 53 请求系统配置的 DNS 服务器；DNS 套接字设为非阻塞，并绑定源地址和设备。查询库校验响应，接受解析后的同地址族记录；无结果、超时、协议错误或截断响应则尝试下一个服务器，最终失败作为网卡查询失败处理。此模块不提供 DNS 服务，不修改 `/etc/resolv.conf`，不请求额外公共解析服务。使用系统本机代理时的回退边界见 2.3。
+使用 dnspython 构造标准 DNS A/AAAA 递归查询，通过 UDP 53 请求系统配置的 DNS 服务器；DNS 套接字设为非阻塞，并绑定源地址和设备。查询库校验响应，接受解析后的同地址族记录；无结果、超时、协议错误或截断响应则尝试下一个服务器，设备解析失败后在剩余预算内由系统解析器查询（必要时由解析库使用 TCP），全部失败才作为网卡查询失败处理。此模块不提供 DNS 服务，不修改 `/etc/resolv.conf`，不请求额外公共解析服务。使用系统本机代理时的回退边界见 2.3。
 
 ## 8. 公网查询流程图
 
@@ -521,3 +521,10 @@ flowchart TD
 
 `--self-test` 新增 `route_control_entry` 与 dbus-next 版本；仅发送无效操作，不访问总线。
 `--smoke-test` 新增 `route_menu_readonly`，真实读取菜单候选但不切换；退出清理检查包含出口服务子进程。
+
+## 15. DNS 回退协议（0.7.1）
+
+`resolve_interface_host(host, local_ip, interface_name, timeout) -> list[str]` 的调用接口不变。
+设备绑定 DNS 使用至多 timeout/2，各服务器均分剩余设备预算；绑定不可达或没有合适服务器时，剩余总预算交给系统配置解析器，`lifetime=remaining, search=False`。A/AAAA 由源地址族决定，系统 DNS 传输不必与记录地址族相同。所有路径失败转换为 socket.gaierror，便于现有 HTTPS 层继续轮换服务；不扩展父进程 6 秒看门狗。
+
+这是**DNS 路径回退，不是公网 IP 查询出口回退**。SourceAddressAdapter 的源地址、SO_BINDTODEVICE、TLS 证书验证、SNI/Host、禁止代理和禁止重定向保持不变。接口不添加未配置的公共 DNS，不修改系统解析配置，不跨网卡复用公网结果。
