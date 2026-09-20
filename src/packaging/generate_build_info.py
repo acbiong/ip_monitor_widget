@@ -35,7 +35,12 @@ def main() -> int:
     project = arguments.project.resolve()
     version = json.loads(arguments.version_file.read_text(encoding="utf-8"))
     commit = run_git(project, "rev-parse", "HEAD") or "未知"
-    status = run_git(project, "status", "--porcelain")
+    raw_status = run_git(project, "status", "--porcelain")
+    # 构建脚本会自动递增 VERSION.json；该生成性改动不应掩盖源代码的 Git 状态。
+    status = "\n".join(
+        line for line in raw_status.splitlines()
+        if line[3:].strip() != "src/VERSION.json"
+    )
     branch = run_git(project, "branch", "--show-current") or "未知"
     try:
         packager = f"PyInstaller {importlib.metadata.version('pyinstaller')}"
