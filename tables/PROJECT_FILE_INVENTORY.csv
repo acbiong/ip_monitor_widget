@@ -340,7 +340,7 @@ docs/third_party_licenses/urllib3/urllib3-2.8.0.dist-info/licenses,licenses,文�
 docs/third_party_licenses/urllib3/urllib3-2.8.0.dist-info/licenses/LICENSE.txt,LICENSE.txt,文件,第三方组件许可证或版权声明文件。
 src,src,文件夹,源代码、资源和构建脚本目录。
 src/VERSION.json,VERSION.json,文件,版本状态，保存基础版本、构建号、构建后缀和完整版本。
-src/about_dialog.py,about_dialog.py,文件,关于页面，显示版本、开发者、Git 和编译信息。
+src/about_dialog.py,about_dialog.py,文件,固定尺寸、名称居中的关于页面，显示版本、开发者、Git 和编译信息。
 src/build_info.py,build_info.py,文件,运行时读取源码 Git 信息或单文件内置编译信息。
 src/config.py,config.py,文件,应用常量、默认设置、公网服务地址和超时参数。
 src/cpu_temperature.py,cpu_temperature.py,文件,识别并读取 CPU 温度传感器。

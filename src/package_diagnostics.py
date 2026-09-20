@@ -67,11 +67,11 @@ def self_test() -> int:
 
 def smoke_test() -> int:
     """使用临时配置显示三秒后自动退出，只采集本地信息，不查询公网。"""
-    from PyQt5.QtCore import QCoreApplication, QEvent, QSettings, QTimer
+    from PyQt5.QtCore import QCoreApplication, QEvent, QSettings, QTimer, Qt
     from PyQt5.QtGui import QIcon
     from PyQt5.QtWidgets import QApplication, QLabel
     from about_dialog import AboutDialog
-    from config import ICON_PATH
+    from config import APP_NAME, ICON_PATH
     from settings_store import SettingsStore
     from tray_controller import TrayController
 
@@ -104,6 +104,17 @@ def smoke_test() -> int:
                 report["about_style"] = (dialog.windowOpacity() == 1.0 and
                                          version_label.palette().windowText().color()
                                          == app.palette().windowText().color())
+                report["about_title"] = dialog.windowTitle() == "关于"
+                title_label = next(label for label in dialog.findChildren(QLabel)
+                                   if f"<h2>{APP_NAME}</h2>" in label.text())
+                report["about_name_centered"] = title_label.alignment() == Qt.AlignCenter
+                original_size = dialog.size()
+                dialog.resize(original_size.width() + 100, original_size.height() + 100)
+                report["about_fixed_size"] = (dialog.size() == original_size
+                                               == dialog.minimumSize() == dialog.maximumSize())
+                dialog.resize(100, 100)
+                report["about_fixed_size"] = (report["about_fixed_size"]
+                                               and dialog.size() == original_size)
                 dialog.reject()
 
             action = next(action for action in controller.menu.actions() if action.text() == "关于")
@@ -114,6 +125,9 @@ def smoke_test() -> int:
                 QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
                 results.append(report.get("about_fields", False) and report.get("about_icon", False)
                                and report.get("about_style", False)
+                               and report.get("about_title", False)
+                               and report.get("about_name_centered", False)
+                               and report.get("about_fixed_size", False)
                                and not controller.widget.findChildren(AboutDialog))
             report["about_open_close"] = all(results)
 

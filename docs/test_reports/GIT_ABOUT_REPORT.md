@@ -40,3 +40,13 @@ PYTHONHOME 及外部 Qt 插件路径，在真实 X11 会话执行 `--self-test` 
 最终单文件的版本、Git 提交和编译信息以 `../BUILD_MANIFEST.json` 为准；
 自检与图形冒烟原始结果保存在本目录 `PACKAGE_SELF_TEST.json` 和 `PACKAGE_SMOKE_TEST.json`。
 源码提交与后续构建/测试报告提交可以不同，包内快照保持不可变。
+
+## 0.6.1 关于窗口布局修复（2026-09-20）
+
+- 需求：禁止调整关于窗口大小、软件名称居中、标题栏仅显示“关于”。
+- 修改模块：`src/about_dialog.py`；回归入口：`src/package_diagnostics.py`。
+- 源码测试命令：`PYTHONDONTWRITEBYTECODE=1 QT_QPA_PLATFORM=xcb python3 src/main.py --smoke-test`。
+- 真实 X11 源码测试通过：`about_title`、`about_name_centered`、`about_fixed_size` 均为 true；实际调用 resize 尝试放大/缩小，尺寸均保持不变。
+- 两次托盘打开/关闭、字段、图标、独立样式、默认路由、后台查询链路与退出清理均通过，总结果 `ok: true`。
+- 测试使用临时配置和空地址 fixture，不修改用户设置、不查询公网。系统 DTK 输出托盘注册提示，但未影响以上检查。
+- 单文件构建和最终验证结果见 `VALIDATION_REPORT.md`、`PACKAGE_SMOKE_TEST.json`。

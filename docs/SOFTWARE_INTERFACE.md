@@ -473,3 +473,7 @@ flowchart TD
 - `generate_build_info.py --project PATH --output PATH --version-file PATH [--bump-build]` 输出 UTF-8 JSON 文件和相同 stdout JSON。`--bump-build` 只接受项目版本文件，先记录 Git，再递增编译号，避免把构建本身当成源码变更。
 - `build` 字段包含 `built_at`（UTC ISO 8601）、`target`、`architecture`、`python`、`packager` 和 `git_snapshot_stage`。BUILD_INFO.json 位于构建缓存；PyInstaller 内置后目标机无需 `.git` 或 Git。
 - 自检额外验证内置元数据版本一致；冒烟测试通过真实托盘动作连续两次打开/关闭关于页，检查内容、图标、样式和对象释放。
+
+### 0.6.1 关于窗口显示协议
+
+`AboutDialog` 标题固定为“关于”；名称标签使用 `Qt.AlignCenter`，根布局使用 `QLayout.SetFixedSize` 按内容确定固定窗口尺寸，适配系统字体而不允许手动缩放。输入输出和关闭行为不变。`--smoke-test` 新增布尔字段 `about_title`、`about_name_centered`、`about_fixed_size`，任一失败会使总结果 `ok` 为 false 并返回非零退出码。

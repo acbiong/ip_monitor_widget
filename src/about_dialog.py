@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication, QDialog, QDialogButtonBox, QFormLayout, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QDialog, QDialogButtonBox, QFormLayout, QLabel, QLayout, QVBoxLayout
 
 from build_info import load_build_info
 from config import APP_NAME, DEVELOPER_NAME, ICON_PATH
@@ -16,7 +16,7 @@ class AboutDialog(QDialog):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.setWindowTitle(f"关于 {APP_NAME}")
+        self.setWindowTitle("关于")
         self.setWindowIcon(QIcon(str(ICON_PATH)))
         self.setModal(True)
         self.setMinimumWidth(520)
@@ -44,6 +44,7 @@ class AboutDialog(QDialog):
 
         title = QLabel(f"<h2>{APP_NAME}</h2><p>Linux/deepin 桌面状态监视器</p>")
         title.setTextFormat(Qt.RichText)
+        title.setAlignment(Qt.AlignCenter)
 
         form = QFormLayout()
         form.setLabelAlignment(Qt.AlignRight)
@@ -69,6 +70,8 @@ class AboutDialog(QDialog):
         buttons.rejected.connect(self.reject)
 
         layout = QVBoxLayout(self)
+        # 根据内容固定窗口尺寸，避免手动缩放，同时适应系统字体大小。
+        layout.setSizeConstraint(QLayout.SetFixedSize)
         layout.addWidget(icon)
         layout.addWidget(title)
         layout.addLayout(form)
