@@ -35,3 +35,12 @@
 没有执行真实双网卡切换，未修改路由、VPN、DNS 或用户配置。实际写入和回滚仍由模拟事务测试覆盖。
 非零标记流量/专用目的网段仍遵循原策略；主表切换不等于全流量改道。表读取失败、未知选择条件或 VPN 接管默认时继续保守拒绝。
 不代表支持所有策略路由组合或所有 VPN 客户端。最终单文件记录见 BUILD_MANIFEST、PACKAGE_SELF_TEST、PACKAGE_SMOKE_TEST 与 VALIDATION_REPORT。
+
+## 最终单文件验证
+
+版本 `0.7.2+build.20260920.1`，在临时工作目录、`PATH=/nonexistent` 且清除外部 Python/Qt 插件路径的真实 X11 环境：
+- `--self-test`、`--smoke-test` 均退出 0、`ok=true`；路由菜单读取、设置、关于及退出检查全部通过。
+- 单文件 `--default-route-control` list 实测 wlp0s20f3：`enabled=true`、`default_for=["ipv4"]`、`reason=""`。
+- tailscale0 无主表默认路由、vmnet1/vmnet8 未由 NetworkManager 管理，仍正确禁用。
+- 包内版本和干净源码快照一致，SHA256 校验及传输包执行权限检查通过。
+- 未执行实际路由写入，未在本轮重复访问公网回显服务。
