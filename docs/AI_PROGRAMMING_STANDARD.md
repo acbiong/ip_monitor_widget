@@ -17,6 +17,7 @@
 - 测试失败时保留真实失败信息，不通过修改断言或吞异常伪造成功。
 - 更新 `docs/CHANGELOG.md`，并根据变更级别调整 `src/VERSION.json` 的基础版本。
 - 构建只能通过 `src/packaging/build.sh` 触发；构建号由 `version_manager.py` 自动递增，不手工改写后缀。
+- 每项功能修改先创建独立 Git 分支，完成后提交清晰的 commit；禁止把编译缓存、临时文件和发布输出强行加入版本库。
 - 测试计划存放 `docs/test_plan/`，测试结果存放 `docs/test_reports/`，禁止混放。
 
 ## 3. 版本判断

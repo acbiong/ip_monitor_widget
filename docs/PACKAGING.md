@@ -1,6 +1,6 @@
 # 单文件交付与目录说明
 
-更新日期：2026-09-20。当前基础版本：`0.5.1`。构建目标：**deepin 25、x86_64、glibc 2.38 或更高、X11 桌面或可用的 XWayland**。
+更新日期：2026-09-20。当前基础版本：`0.6.0`。构建目标：**deepin 25、x86_64、glibc 2.38 或更高、X11 桌面或可用的 XWayland**。
 
 ## 1. 项目分类
 
@@ -9,6 +9,7 @@ ip_monitor_widget/
 ├── src/                         源代码和资源
 │   ├── main.py                  源码/冻结程序共用入口
 │   ├── version.py、VERSION.json  版本读取和版本状态
+│   ├── about_dialog.py、build_info.py 关于页面和编译信息
 │   ├── *.py                     独立功能模块
 │   ├── resources/icon.svg       程序图标
 │   ├── requirements.txt         源码运行依赖
@@ -67,7 +68,7 @@ sha256sum -c SHA256SUMS
 - 原生 `ip` 路由查询工具及所需共享库，不调用目标机器 PATH 中的 ip。
 - 原生库审计中确认需要的 X11/xcb/图形接口库；相关组件的许可文本随资源内置，另在 docs 归档。
 
-准确版本见 `BUILD_MANIFEST.json` 和 `src/VERSION.json`。本次包固定依赖版本，构建脚本不会静默升级到未记录的版本。
+准确版本见 `BUILD_MANIFEST.json`、`src/VERSION.json` 和关于页面。本次包固定依赖版本，构建脚本不会静默升级到未记录的版本。
 
 ### 版本管理
 

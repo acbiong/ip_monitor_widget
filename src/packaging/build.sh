@@ -22,6 +22,11 @@ if [[ "${SKIP_INSTALL:-0}" != 1 ]]; then
 fi
 mkdir -p "$project_dir/dist" "$cache_dir/work"
 "$python" "$script_dir/version_manager.py" --bump-build
+build_info_path="$cache_dir/work/BUILD_INFO.json"
+"$python" "$script_dir/generate_build_info.py" \
+    --project "$project_dir" --output "$build_info_path" \
+    --version-file "$project_dir/src/VERSION.json"
+export IP_MONITOR_BUILD_INFO="$build_info_path"
 "$python" -m PyInstaller --noconfirm --clean \
     --distpath "$project_dir/dist" --workpath "$cache_dir/work" \
     "$script_dir/monitor.spec"

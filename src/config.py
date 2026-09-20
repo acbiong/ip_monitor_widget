@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 APP_NAME = "本机状态监视器"
+DEVELOPER_NAME = "Biong"
 ORG_NAME = "Biong"
 APP_ID = "IPMonitorWidget"
 ICON_PATH = Path(__file__).resolve().parent / "resources" / "icon.svg"

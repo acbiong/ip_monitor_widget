@@ -99,6 +99,8 @@ flowchart TD
 | `monitor_widget.py` | 渲染、拖动、设置事务和协调 | 所有业务数据、交互事件 | 主窗体、服务调用 |
 | `tray_controller.py` | 菜单与应用清理接线 | QApplication、可选注入依赖 | 托盘图标、主窗体 |
 | `package_diagnostics.py` | 单文件运行诊断 | 自检/GUI 测试入口 | JSON 检查结果、退出码；GUI 测试使用临时配置 |
+| `about_dialog.py` | 关于页面 | 托盘“关于”动作 | 版本、开发者、Git 和编译信息 |
+| `build_info.py` | 读取构建元数据 | 源码 Git 或冻结包 BUILD_INFO.json | Git/编译信息字典 |
 | `version.py`、`VERSION.json` | 运行时版本读取 | 启动参数/版本文件 | 当前应用版本字符串 |
 | `packaging/version_manager.py` | 基础版本和编译后缀管理 | `--set-base-version`、`--bump-build` | 更新后的版本 JSON |
 
@@ -441,7 +443,7 @@ QSettings 命名空间保持 `Biong / IPMonitorWidget`。Linux 通常保存为 `
 
 ## 12. 单文件启动与交付协议
 
-入口先检查内部/诊断参数，再导入 GUI：`--version` 输出版本；`--public-ip-lookup` 调用查询子进程 main，不创建 QApplication；无参数时启动监视器；`--self-test` 和 `--smoke-test` 返回 JSON 诊断结果及 0/1 退出码。其余业务信号、网卡任务 JSON、配置命名空间均保持不变。
+入口先检查内部/诊断参数，再导入 GUI：`--version` 输出版本；`--public-ip-lookup` 调用查询子进程 main，不创建 QApplication；无参数时启动监视器；`--self-test` 和 `--smoke-test` 返回 JSON 诊断结果及 0/1 退出码。其余业务信号、网卡任务 JSON、配置命名空间均保持不变。 托盘菜单的“关于”动作创建 AboutDialog，不新增网络端口或外部控制协议。
 
 运行时钩子将 Qt 插件路径指向冻结资源，禁用继承的外部 Qt 主题/样式插件，使用 Fusion 和 xcb；offscreen/minimal 仍可用于测试。普通二维界面禁用多余的 XCB GL 集成。环境变化只作用于本进程及其子进程，不修改系统环境。
 

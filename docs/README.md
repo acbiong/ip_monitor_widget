@@ -2,7 +2,7 @@
 
 Linux/X11 下的 PyQt5 桌面小工具：默认出口网卡、多网卡本机/公网 IP、全局上传/下载速率、CPU/内存/根分区占用及 CPU 温度。
 
-当前基础版本：`0.5.1`；每次执行构建脚本自动追加递增的 `+build.YYYYMMDD.N` 后缀。
+当前基础版本：`0.6.0`；每次执行构建脚本自动追加递增的 `+build.YYYYMMDD.N` 后缀。
 
 ## 运行
 
@@ -47,6 +47,8 @@ python3 -m pip install -r requirements.txt
 | `monitor_widget.py` | 监控显示与功能协调 |
 | `tray_controller.py` | 托盘与退出清理 |
 | `package_diagnostics.py` | 单文件依赖自检、无公网请求的 GUI/后台进程检查 |
+| `about_dialog.py` | 关于页面，显示版本、开发者、Git 和编译信息 |
+| `build_info.py` | 读取源码或单文件内置的 Git/编译信息 |
 | `version.py`、`VERSION.json` | 运行时读取版本信息和构建后缀 |
 | `packaging/` | 构建配置、锁定依赖、运行时环境隔离及原生依赖审计 |
 | `SOFTWARE_INTERFACE.md` | 软件原理、架构/流程图、全部模块输入输出及通信协议 |
@@ -55,6 +57,7 @@ python3 -m pip install -r requirements.txt
 | `AI_PROGRAMMING_STANDARD.md` | AI 辅助开发流程和编码约束 |
 | `CHANGELOG.md` | 版本规则与变更履历 |
 | `test_plan/`、`test_reports/` | 测试计划和独立测试报告 |
+| `../tables/` | 项目所有文件夹和文件的表格清单 |
 | `../tables/` | 项目所有文件夹和文件的表格清单 |
 
 ## 行为说明
@@ -187,6 +190,7 @@ SKIP_INSTALL=1 ./src/packaging/build.sh
 | 鼠标左键拖动 | 移动桌面监视器窗口 |
 | 托盘右键“锁定” | 启用鼠标穿透，窗口不可被鼠标选中 |
 | 托盘右键“解锁” | 恢复窗口交互和拖动 |
+| 托盘右键“关于” | 打开版本、开发者、Git 和编译信息页面 |
 | 托盘右键“设置” | 打开设置窗口 |
 | 托盘右键“还原窗体位置” | 同时还原主窗口和设置窗口位置 |
 | 托盘右键“退出” | 立即终止后台查询并退出程序 |

@@ -1,5 +1,7 @@
 ﻿相对路径,名称,类型,说明
 .,,文件夹,项目根目录，包含源代码、文档、测试清单和发布产物。
+.git,.git,文件夹,Git 本地版本库元数据目录；表格不展开其中的对象文件。
+.gitignore,.gitignore,文件,Git 忽略规则，排除 Python 缓存、构建缓存、临时文件和 dist 发布输出。
 README.md,README.md,文件,项目总入口，提供目录导航和核心文档链接。
 dist,dist,文件夹,可转移的单文件程序、压缩包和校验和目录。
 dist/DesktopMonitor-deepin25-x86_64,DesktopMonitor-deepin25-x86_64,文件,面向 deepin 25 x86_64 的 PyInstaller 单文件可执行程序。
@@ -335,6 +337,8 @@ docs/third_party_licenses/urllib3/urllib3-2.8.0.dist-info/licenses,licenses,文�
 docs/third_party_licenses/urllib3/urllib3-2.8.0.dist-info/licenses/LICENSE.txt,LICENSE.txt,文件,第三方组件许可证或版权声明文件。
 src,src,文件夹,源代码、资源和构建脚本目录。
 src/VERSION.json,VERSION.json,文件,版本状态，保存基础版本、构建号、构建后缀和完整版本。
+src/about_dialog.py,about_dialog.py,文件,关于页面，显示版本、开发者、Git 和编译信息。
+src/build_info.py,build_info.py,文件,运行时读取源码 Git 信息或单文件内置编译信息。
 src/config.py,config.py,文件,应用常量、默认设置、公网服务地址和超时参数。
 src/cpu_temperature.py,cpu_temperature.py,文件,识别并读取 CPU 温度传感器。
 src/default_route.py,default_route.py,文件,读取 IPv4/IPv6 默认路由并选择默认出口网卡。
@@ -347,6 +351,7 @@ src/packaging,packaging,文件夹,PyInstaller 构建、版本管理、依赖审�
 src/packaging/audit.py,audit.py,文件,审计单文件 ELF 依赖、动态库闭包和最低 GLIBC。
 src/packaging/build-requirements.txt,build-requirements.txt,文件,冻结构建所需的锁定 Python 依赖。
 src/packaging/build.sh,build.sh,文件,版本递增、PyInstaller 构建、依赖审计、自检和发布文件生成脚本。
+src/packaging/generate_build_info.py,generate_build_info.py,文件,构建时生成嵌入单文件的 Git 和编译信息快照。
 src/packaging/monitor.spec,monitor.spec,文件,PyInstaller 单文件构建配置和内置资源清单。
 src/packaging/release.py,release.py,文件,生成传输包、SHA256、构建清单和第三方许可归档。
 src/packaging/runtime_env.py,runtime_env.py,文件,冻结程序运行时 Qt 插件和图形环境隔离钩子。

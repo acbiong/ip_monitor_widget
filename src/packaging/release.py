@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import importlib.metadata
 import json
+import os
 from pathlib import Path
 import platform
 import shutil
@@ -24,10 +25,14 @@ def main() -> None:
             hashes[path.name] = hashlib.file_digest(stream, "sha256").hexdigest()
     (output / "SHA256SUMS").write_text("".join(f"{digest}  {name}\n" for name, digest in hashes.items()))
     version_info = json.loads((project / "src" / "VERSION.json").read_text(encoding="utf-8"))
+    build_info_path = Path(os.environ.get("IP_MONITOR_BUILD_INFO", ""))
+    build_info = json.loads(build_info_path.read_text(encoding="utf-8")) if build_info_path.is_file() else {}
     manifest = {
         "application_version": version_info["version"],
         "base_version": version_info["base_version"],
         "build_number": version_info["build_number"],
+        "git": build_info.get("git", {}),
+        "build": build_info.get("build", {}),
         "built_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "target": "deepin 25 x86_64, X11 or available XWayland",
         "architecture": platform.machine(),

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 
+from build_info import load_build_info
 from version import APP_VERSION
 
 
@@ -21,8 +22,11 @@ def self_test() -> int:
     root = Path(__file__).resolve().parent
     frozen = bool(getattr(sys, "frozen", False))
     command = str(root / "bin" / "ip") if frozen else shutil.which("ip")
+    build_info = load_build_info()
     report = {
         "application_version": APP_VERSION,
+        "git": build_info.get("git", {}),
+        "build": build_info.get("build", {}),
         "frozen": frozen,
         "python": sys.version.split()[0],
         "qt": qVersion(),
