@@ -26,6 +26,14 @@ def run_git(project: Path, *arguments: str) -> str:
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
+GENERATED_STATUS_PATHS = frozenset({
+    "src/VERSION.json",
+    "docs/BUILD_MANIFEST.json",
+    "docs/NATIVE_DEPENDENCIES.json",
+    "docs/test_reports/PACKAGE_SELF_TEST.json",
+})
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="生成单文件编译信息")
     parser.add_argument("--project", required=True, type=Path)
@@ -39,7 +47,7 @@ def main() -> int:
     # 构建脚本会自动递增 VERSION.json；该生成性改动不应掩盖源代码的 Git 状态。
     status = "\n".join(
         line for line in raw_status.splitlines()
-        if line[2:].strip() != "src/VERSION.json"
+        if line[2:].strip() not in GENERATED_STATUS_PATHS
     )
     branch = run_git(project, "branch", "--show-current") or "未知"
     try:
