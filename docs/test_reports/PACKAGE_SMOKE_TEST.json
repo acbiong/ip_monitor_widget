@@ -1,5 +1,9 @@
 {
-  "application_version": "0.5.1+build.20260920.2",
+  "application_version": "0.6.0+build.20260920.3",
+  "about_fields": true,
+  "about_icon": true,
+  "about_style": true,
+  "about_open_close": true,
   "icon_rendered": true,
   "window_visible": true,
   "routes": {

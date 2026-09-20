@@ -5,7 +5,9 @@
 ## 验证对象
 
 - 文件：`dist/DesktopMonitor-deepin25-x86_64`
-- 应用版本：`0.5.1+build.20260920.2`
+- 应用版本：`0.6.0+build.20260920.3`
+- 构建源码分支：`feature/tray-about-git-info`
+- 构建源码提交：`7781062e6d2315b75b8bd3c7ac6c66f6f94127dc`（自动递增构建号之前工作树干净）
 - 目标：deepin 25、x86_64、glibc 2.38 或更高、X11 或可用的 XWayland
 - 传输包：`dist/DesktopMonitor-deepin25-x86_64.tar.gz`
 - 校验值：见 `dist/SHA256SUMS` 和 `docs/BUILD_MANIFEST.json`
@@ -15,6 +17,8 @@
 | 检查项 | 结果 | 说明 |
 |---|---|---|
 | 单文件依赖自检 | 通过 | `--self-test` 检查内置 Python、PyQt5、Qt xcb 插件、CA 证书、`ip` 工具和后台查询入口 |
+| Git/编译快照 | 通过 | 包内版本与 manifest 一致；临时目录且 PATH=/nonexistent 时不依赖目标 Git |
+| 关于页面 | 通过 | 从真实托盘动作连续两次打开/关闭，字段、图标、样式和对象释放均通过 |
 | 清空外部环境自检 | 通过 | 清空 `PATH`、`PYTHONPATH`、`PYTHONHOME`、外部 Qt 插件路径后运行，结果保存在 `docs/test_reports/PACKAGE_SELF_TEST.json` |
 | 图形启动冒烟测试 | 通过 | 在隔离临时目录中运行 `--smoke-test`，验证图标、窗口可见、默认路由检测、后台进程链路和退出清理，结果保存在 `docs/test_reports/PACKAGE_SMOKE_TEST.json` |
 | 原生依赖审计 | 通过 | `NATIVE_DEPENDENCIES.json` 中记录的 ELF 依赖无缺失外部库，最低 GLIBC 为 2.38 |

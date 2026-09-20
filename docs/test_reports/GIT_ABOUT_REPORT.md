@@ -28,6 +28,15 @@ Git 测试只使用临时本地仓库，不拉取或推送远程。关于页面�
 
 ## 单文件交付验证
 
+最终包：`0.6.0+build.20260920.3`；内置源码提交：
+`7781062e6d2315b75b8bd3c7ac6c66f6f94127dc`；分支：`feature/tray-about-git-info`；
+Git 快照 `dirty=false`，UTC 编译时间 `2026-09-20T05:40:51.136146+00:00`。
+
+已将可执行文件单独复制到临时目录，设置 `PATH=/nonexistent`，清除 PYTHONPATH、
+PYTHONHOME 及外部 Qt 插件路径，在真实 X11 会话执行 `--self-test` 和 `--smoke-test`。
+两者退出码均为 0、`ok=true`；`build_metadata`、`about_fields`、`about_icon`、
+`about_style`、`about_open_close` 均为 true。没有 Git/Python 外部命令也能读取完整编译信息。
+
 最终单文件的版本、Git 提交和编译信息以 `../BUILD_MANIFEST.json` 为准；
 自检与图形冒烟原始结果保存在本目录 `PACKAGE_SELF_TEST.json` 和 `PACKAGE_SMOKE_TEST.json`。
 源码提交与后续构建/测试报告提交可以不同，包内快照保持不可变。

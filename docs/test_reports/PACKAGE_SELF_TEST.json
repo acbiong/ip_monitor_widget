@@ -1,17 +1,18 @@
 {
-  "application_version": "0.6.0+build.20260920.2",
+  "application_version": "0.6.0+build.20260920.3",
   "git": {
     "branch": "feature/tray-about-git-info",
-    "commit": "361286eb3742b7486db773cab9f324baa3cbcd32",
-    "commit_short": "361286eb3742",
-    "dirty": true
+    "commit": "7781062e6d2315b75b8bd3c7ac6c66f6f94127dc",
+    "commit_short": "7781062e6d23",
+    "dirty": false
   },
   "build": {
-    "built_at": "2026-09-20T05:29:55.865184+00:00",
+    "built_at": "2026-09-20T05:40:51.136146+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",
-    "packager": "PyInstaller 6.22.3"
+    "packager": "PyInstaller 6.22.3",
+    "git_snapshot_stage": "自动递增构建号之前（包括全部未提交修改）"
   },
   "frozen": true,
   "python": "3.12.13",
@@ -25,6 +26,7 @@
     "certifi": "2026.7.22"
   },
   "checks": {
+    "build_metadata": true,
     "icon": true,
     "ca_certificates": true,
     "tls_context": true,

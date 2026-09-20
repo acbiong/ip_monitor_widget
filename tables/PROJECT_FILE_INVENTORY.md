@@ -1,14 +1,15 @@
 # 项目文件与目录清单
 
-> 生成日期：2026-09-20；共 184 个文件夹、189 个文件。
+> 生成日期：2026-09-20；共 184 个文件夹、192 个文件。
 
-本表覆盖项目根目录下的每一个项目文件夹和文件，包括源代码、文档、测试报告、第三方许可、单文件程序、传输包和 Git 仓库顶层目录。`.git` 内部对象文件不展开。
+覆盖项目文件、资源、报告、发布产物和 Git 顶层目录；`.git` 内部对象及忽略的编译缓存不展开。
 
 | 相对路径 | 名称 | 类型 | 文件/目录说明 |
 |---|---|---|---|
-| . |  | 文件夹 | 项目根目录，包含源代码、文档、测试清单和发布产物。 |
+| . | ip_monitor_widget | 文件夹 | 项目根目录，包含源代码、文档、测试清单和发布产物。 |
 | .git | .git | 文件夹 | Git 本地版本库元数据目录；表格不展开其中的对象文件。 |
 | .gitignore | .gitignore | 文件 | Git 忽略规则，排除 Python 缓存、构建缓存、临时文件和 dist 发布输出。 |
+| AGENTS.md | AGENTS.md | 文件 | 项目协作规则，要求独立任务分支、提交、验证与真实构建快照。 |
 | README.md | README.md | 文件 | 项目总入口，提供目录导航和核心文档链接。 |
 | dist | dist | 文件夹 | 可转移的单文件程序、压缩包和校验和目录。 |
 | dist/DesktopMonitor-deepin25-x86_64 | DesktopMonitor-deepin25-x86_64 | 文件 | 面向 deepin 25 x86_64 的 PyInstaller 单文件可执行程序。 |
@@ -19,6 +20,7 @@
 | docs/BUILD_MANIFEST.json | BUILD_MANIFEST.json | 文件 | 本次构建版本、平台、依赖和产物校验清单。 |
 | docs/CHANGELOG.md | CHANGELOG.md | 文件 | 版本规则和历史变更记录。 |
 | docs/CODE_REVIEW.md | CODE_REVIEW.md | 文件 | 代码审查结论、优化记录、回归结果和限制。 |
+| docs/GIT_WORKFLOW.md | GIT_WORKFLOW.md | 文件 | 本地仓库、分支提交、忽略规则及构建前 Git 快照流程。 |
 | docs/NATIVE_DEPENDENCIES.json | NATIVE_DEPENDENCIES.json | 文件 | 单文件 ELF 原生依赖和 GLIBC 审计结果。 |
 | docs/PACKAGING.md | PACKAGING.md | 文件 | 单文件交付方式、依赖范围、兼容边界和打包说明。 |
 | docs/README.md | README.md | 文件 | 详细构建、运行、使用、版本和故障排查指南。 |
@@ -30,6 +32,7 @@
 | docs/test_plan | test_plan | 文件夹 | 测试计划目录，与测试报告分离。 |
 | docs/test_plan/TEST_PLAN.md | TEST_PLAN.md | 文件 | 模块、集成、回归和交付测试计划。 |
 | docs/test_reports | test_reports | 文件夹 | 测试执行结果和交付验证报告目录。 |
+| docs/test_reports/GIT_ABOUT_REPORT.md | GIT_ABOUT_REPORT.md | 文件 | Git 元数据、关于页生命周期与构建快照验证结果。 |
 | docs/test_reports/PACKAGE_SELF_TEST.json | PACKAGE_SELF_TEST.json | 文件 | 单文件无 GUI 依赖与内部入口自检报告。 |
 | docs/test_reports/PACKAGE_SMOKE_TEST.json | PACKAGE_SMOKE_TEST.json | 文件 | 隔离图形会话中的窗口和后台链路冒烟报告。 |
 | docs/test_reports/VALIDATION_REPORT.md | VALIDATION_REPORT.md | 文件 | 单文件验证范围、结果和兼容边界报告。 |
