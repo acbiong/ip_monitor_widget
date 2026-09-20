@@ -477,3 +477,9 @@ flowchart TD
 ### 0.6.1 关于窗口显示协议
 
 `AboutDialog` 标题固定为“关于”；名称标签使用 `Qt.AlignCenter`，根布局使用 `QLayout.SetFixedSize` 按内容确定固定窗口尺寸，适配系统字体而不允许手动缩放。输入输出和关闭行为不变。`--smoke-test` 新增布尔字段 `about_title`、`about_name_centered`、`about_fixed_size`，任一失败会使总结果 `ok` 为 false 并返回非零退出码。
+
+### 0.6.2 设置窗口显示协议
+
+`SettingsDialog` 使用局部对象名选择器覆盖父窗口样式，标签、输入和按钮均为黑字，窗口背景为浅色且完全不透明。字号取应用字体，不跟随主窗口预览；根布局使用 `QLayout.SetFixedSize` 按控件内容确定固定尺寸。`preview_changed(dict)`、`values_applied(dict)` 与位置持久化协议保持不变。
+
+`--smoke-test` 新增 `settings_preview`、`settings_black_text`、`settings_style_isolated`、`settings_fixed_size`、`settings_restore_defaults`、`settings_cancelled`、`settings_saved`、`settings_open_close` 布尔字段；实际托盘动作验证取消和保存两条路径，任一检查失败会使总结果为 false。测试使用临时配置，不修改用户配置。

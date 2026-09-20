@@ -28,6 +28,7 @@ docs/test_reports,test_reports,文件夹,测试执行结果和交付验证报告
 docs/test_reports/GIT_ABOUT_REPORT.md,GIT_ABOUT_REPORT.md,文件,Git 元数据、关于页生命周期与构建快照验证结果。
 docs/test_reports/PACKAGE_SELF_TEST.json,PACKAGE_SELF_TEST.json,文件,单文件无 GUI 依赖与内部入口自检报告。
 docs/test_reports/PACKAGE_SMOKE_TEST.json,PACKAGE_SMOKE_TEST.json,文件,隔离图形会话中的窗口和后台链路冒烟报告。
+docs/test_reports/SETTINGS_DIALOG_REPORT.md,SETTINGS_DIALOG_REPORT.md,文件,设置页黑字浅底、固定尺寸及预览保存回归报告。
 docs/test_reports/VALIDATION_REPORT.md,VALIDATION_REPORT.md,文件,单文件验证范围、结果和兼容边界报告。
 docs/third_party_licenses,third_party_licenses,文件夹,第三方 Python、Qt 和系统库许可归档目录。
 docs/third_party_licenses/PyQt5-Qt5,PyQt5-Qt5,文件夹,对应第三方 Python/Qt 组件的许可归档目录。
@@ -365,7 +366,7 @@ src/requirements.txt,requirements.txt,文件,源码运行依赖清单。
 src/resources,resources,文件夹,程序图标等运行时资源目录。
 src/resources/icon.svg,icon.svg,文件,系统托盘和窗口使用的 SVG 图标。
 src/run.sh,run.sh,文件,源码启动脚本。
-src/settings_dialog.py,settings_dialog.py,文件,设置窗口及实时预览、取消回滚和默认值恢复。
+src/settings_dialog.py,settings_dialog.py,文件,黑字浅底、固定尺寸的设置窗口及实时预览、取消回滚和默认值恢复。
 src/settings_store.py,settings_store.py,文件,校验并持久化用户设置、窗口位置和锁定状态。
 src/system_metrics.py,system_metrics.py,文件,采集 CPU、内存、磁盘、流量和温度等系统指标。
 src/tray_controller.py,tray_controller.py,文件,系统托盘菜单、设置窗口、位置恢复和退出清理。

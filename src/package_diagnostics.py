@@ -68,11 +68,12 @@ def self_test() -> int:
 def smoke_test() -> int:
     """使用临时配置显示三秒后自动退出，只采集本地信息，不查询公网。"""
     from PyQt5.QtCore import QCoreApplication, QEvent, QSettings, QTimer, Qt
-    from PyQt5.QtGui import QIcon
-    from PyQt5.QtWidgets import QApplication, QLabel
+    from PyQt5.QtGui import QColor, QIcon, QPalette
+    from PyQt5.QtWidgets import QApplication, QDialogButtonBox, QLabel, QLineEdit, QPushButton, QSpinBox
     from about_dialog import AboutDialog
     from config import APP_NAME, ICON_PATH
     from settings_store import SettingsStore
+    from settings_dialog import SettingsDialog
     from tray_controller import TrayController
 
     app = QApplication([])
@@ -133,6 +134,71 @@ def smoke_test() -> int:
 
         QTimer.singleShot(500, check_about)
 
+        def check_settings():
+            """验证设置页黑字、固定尺寸及预览/取消/保存，不使用用户配置。"""
+            original_values = dict(controller.widget.values)
+            results = []
+
+            def inspect_and_close(save):
+                dialog = controller.widget.settings_dialog
+                if dialog is None:
+                    results.append(False)
+                    return
+                try:
+                    original_size = dialog.size()
+                    labels = dialog.findChildren(QLabel)
+                    original_fonts = [label.font().toString() for label in labels]
+                    dialog.font_size.setValue(48)
+                    dialog.opacity.setValue(95)
+                    dialog.interval.setValue(10000)
+                    QApplication.processEvents()
+                    report["settings_preview"] = all(controller.widget.values[key] == value
+                                                      for key, value in dialog.current_values().items())
+                    text_widgets = dialog.findChildren((QLabel, QSpinBox, QLineEdit, QPushButton))
+                    report["settings_black_text"] = all(
+                        child.palette().color(role) == QColor("#000000")
+                        for child in text_widgets
+                        for role in (QPalette.WindowText, QPalette.Text, QPalette.ButtonText))
+                    report["settings_style_isolated"] = (
+                        dialog.windowOpacity() == 1.0
+                        and dialog.palette().color(QPalette.Window) == QColor("#f5f5f5")
+                        and original_fonts == [label.font().toString() for label in labels])
+                    dialog.resize(original_size.width() + 100, original_size.height() + 100)
+                    report["settings_fixed_size"] = (dialog.size() == original_size
+                                                      == dialog.minimumSize() == dialog.maximumSize())
+                    dialog.resize(100, 100)
+                    report["settings_fixed_size"] &= dialog.size() == original_size
+                    buttons = dialog.findChild(QDialogButtonBox)
+                    buttons.button(QDialogButtonBox.RestoreDefaults).click()
+                    report["settings_restore_defaults"] = all(
+                        controller.widget.values[key] == value == dialog.defaults[key]
+                        for key, value in dialog.current_values().items())
+                    dialog.font_size.setValue(24)
+                    results.append(all(report[key] for key in (
+                        "settings_preview", "settings_black_text", "settings_style_isolated",
+                        "settings_fixed_size", "settings_restore_defaults")))
+                    buttons.button(QDialogButtonBox.Save if save else QDialogButtonBox.Cancel).click()
+                except Exception as error:
+                    report["settings_error"] = str(error)
+                    results.append(False)
+                    dialog.reject()
+
+            action = next(action for action in controller.menu.actions() if action.text() == "打开设置")
+            for save in (False, True):
+                QTimer.singleShot(0, lambda save=save: inspect_and_close(save))
+                action.trigger()
+                QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+                if save:
+                    report["settings_saved"] = (controller.widget.values["font_size"] == 24
+                                                 == controller.widget.store.load()["font_size"])
+                else:
+                    report["settings_cancelled"] = controller.widget.values == original_values
+                results.append(not controller.widget.findChildren(SettingsDialog))
+            report["settings_open_close"] = (all(results) and report["settings_saved"]
+                                               and report["settings_cancelled"])
+
+        QTimer.singleShot(1000, check_settings)
+
         def finish():
             report["icon_rendered"] = not QIcon(str(ICON_PATH)).pixmap(32, 32).isNull()
             report["window_visible"] = controller.widget.isVisible()
@@ -152,6 +218,7 @@ def smoke_test() -> int:
         controller.tray.hide()
     report["ok"] = status == 0 and all(report.get(key, False) for key in
                                      ("icon_rendered", "window_visible", "route_detection",
-                                      "background_query", "no_remaining_workers", "about_open_close"))
+                                      "background_query", "no_remaining_workers", "about_open_close",
+                                      "settings_open_close"))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1
