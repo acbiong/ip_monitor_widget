@@ -1,5 +1,5 @@
 {
-  "application_version": "0.10.0+build.20260921.1",
+  "application_version": "0.10.1+build.20260921.1",
   "route_menu_readonly": true,
   "about_fields": true,
   "about_icon": true,
@@ -22,11 +22,12 @@
   "autostart_cancelled": true,
   "settings_saved": true,
   "autostart_saved": true,
+  "autostart_menu_hidden": true,
   "settings_open_close": true,
   "autostart_disabled": true,
   "icon_rendered": true,
   "window_visible": true,
-  "operator_row": true,
+  "operator_row_hidden": true,
   "routes": {
     "ipv4": [
       "wlp0s20f3"

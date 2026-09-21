@@ -32,3 +32,14 @@
 - 缓存刷新是针对已存在 deepin 服务的异步通知，其他桌面依赖自身 XDG 刷新机制。
 - 当前仍在运行的旧版实例需退出再使用新版，以免旧版设置再次写回旧格式。
 - 本轮不改公网查询逻辑、不进行公网联网重测；此前运营商真实联网结果见 OPERATOR_REPORT.md，不能算作本轮重测。
+
+
+## 单文件交付
+
+- 构建：`SKIP_INSTALL=1 PYTHONDONTWRITEBYTECODE=1 ./src/packaging/build.sh`。
+- 版本：`0.10.1+build.20260921.1`；源码快照：`665a7df2bed925139aeaa41a6402a188c090f999`；构建前工作树干净。
+- 单文件和压缩包：`dist/DesktopMonitor-deepin25-x86_64`、`dist/DesktopMonitor-deepin25-x86_64.tar.gz`。
+- 临时工作目录、`PATH=/nonexistent`、清空外部 Python/Qt 路径运行 `--self-test` 与 X11 `--smoke-test` 均通过。
+- 打包程序的 `operator_row_hidden`、`autostart_menu_hidden`、`no_remaining_workers` 均为 true；既有设置预览/取消、关于、托盘与路由只读检测通过。
+- 原生依赖审计无缺失；`(cd dist && sha256sum -c SHA256SUMS)` 两项通过；tar 中执行权限保持 755。
+- 未停止当前旧版实例。使用者从托盘退出旧版后运行新版，避免旧版覆盖修复后的启动项。

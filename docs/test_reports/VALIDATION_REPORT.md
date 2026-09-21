@@ -5,9 +5,9 @@
 ## 验证对象
 
 - 文件：`dist/DesktopMonitor-deepin25-x86_64`
-- 应用版本：`0.10.0+build.20260921.1`
-- 构建源码分支：`feature/public-ip-operator`
-- 构建源码提交：`95160e9a5ab72c901637a3ac18401d100ead5365`（自动递增构建号之前工作树干净）
+- 应用版本：`0.10.1+build.20260921.1`
+- 构建源码分支：`fix/operator-row-launcher`
+- 构建源码提交：`665a7df2bed925139aeaa41a6402a188c090f999`（自动递增构建号之前工作树干净）
 - 目标：deepin 25、x86_64、glibc 2.38 或更高、X11 或可用的 XWayland
 - 传输包：`dist/DesktopMonitor-deepin25-x86_64.tar.gz`
 - 校验值：见 `dist/SHA256SUMS` 和 `docs/BUILD_MANIFEST.json`
@@ -16,7 +16,8 @@
 
 | 检查项 | 结果 | 说明 |
 |---|---|---|
-| 公网运营商 | 通过 | 22 项新增回归、无效地址内部入口、独立显示行、源码当前无线实测及冻结程序公开电信地址查询通过 |
+| 公网运营商 | 通过 | 无地址整行隐藏、恢复显示、字体与热插拔回归通过；本轮未重新查询真实公网归属 |
+| 自启动菜单隔离 | 通过 | 新增 12 项回归；真实启用时 NoDisplay=true/AutoStart=true，关闭后目录及排列残留移除；已恢复原关闭状态 |
 | 单文件依赖自检 | 通过 | `--self-test` 检查内置 Python、PyQt5、Qt xcb 插件、CA 证书、`ip` 工具和后台查询入口 |
 | Git/编译快照 | 通过 | 包内版本与 manifest 一致；临时目录且 PATH=/nonexistent 时不依赖目标 Git |
 | 关于页面 | 通过 | 从真实托盘动作连续两次打开/关闭，字段、图标、样式、固定尺寸、名称居中、标题仅“关于”和对象释放均通过 |
@@ -54,7 +55,8 @@
 - `window_visible: true`
 - `route_detection: true`
 - `background_query: true`
-- `operator_row: true`
+- `operator_row_hidden: true`
+- `autostart_menu_hidden: true`
 - `no_remaining_workers: true`
 - `ok: true`
 
@@ -93,3 +95,6 @@ chmod +x DesktopMonitor-deepin25-x86_64
 
 
 0.10.0 全部 112 项回归通过。新增运营商进程、缓存与双栈标签离线验证；当前无线出口真实查询识别为中国电信，另验证 IPv4/IPv6 公共测试地址。单文件自检和图形冒烟在临时目录、PATH=/nonexistent 且清空外部 Python/Qt 路径的环境中通过；SHA256 校验及传输包执行权限检查通过。归属结果来自公网出口 ASN，不保证等于签约宽带机构。未在另一台 deepin 电脑实机验证；详见 OPERATOR_REPORT.md。
+
+
+0.10.1 全部 124 项回归通过。新增无公网运营商行隐藏和自启动菜单隔离；修补本机旧启动项并刷新缓存，开始屏幕排列中的本软件 ID 已消除。授权临时启用确认自动启动与菜单隐藏同时生效，结束后恢复关闭。源码和冻结程序图形冒烟均通过，单文件在 PATH=/nonexistent 且清空外部 Python/Qt 环境下自检通过；SHA256 与传输执行权限检查通过。未注销/重启、未在其他电脑测试，也未重复此前公网联网验证。详情见 LAUNCHER_VISIBILITY_REPORT.md。

@@ -1,13 +1,13 @@
 {
-  "application_version": "0.10.0+build.20260921.1",
+  "application_version": "0.10.1+build.20260921.1",
   "git": {
-    "branch": "feature/public-ip-operator",
-    "commit": "95160e9a5ab72c901637a3ac18401d100ead5365",
-    "commit_short": "95160e9a5ab7",
+    "branch": "fix/operator-row-launcher",
+    "commit": "665a7df2bed925139aeaa41a6402a188c090f999",
+    "commit_short": "665a7df2bed9",
     "dirty": false
   },
   "build": {
-    "built_at": "2026-09-21T02:26:09.400909+00:00",
+    "built_at": "2026-09-21T03:13:23.203140+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",
