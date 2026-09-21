@@ -226,6 +226,7 @@ def smoke_test() -> int:
                                                  and controller.widget.store.load()["public_ip_interval"] == 120
                                                  and controller.widget.public_timer.interval() == 120000)
                     report["autostart_saved"] = controller.widget.autostart_manager.is_enabled()
+                    report["autostart_menu_hidden"] = "NoDisplay=true\n" in controller.widget.autostart_manager.path.read_text()
                 else:
                     report["settings_cancelled"] = (controller.widget.values == original_values
                         and controller.widget.public_timer.interval() == original_values["public_ip_interval"] * 1000)
@@ -236,13 +237,15 @@ def smoke_test() -> int:
                                                and report["autostart_cancelled"])
             controller.widget.autostart_manager.set_enabled(False)
             report["autostart_disabled"] = not controller.widget.autostart_manager.is_enabled()
+            report["autostart_menu_hidden"] = (report.get("autostart_menu_hidden", False)
+                and "NoDisplay=true\n" in controller.widget.autostart_manager.path.read_text())
 
         QTimer.singleShot(1000, check_settings)
 
         def finish():
             report["icon_rendered"] = not QIcon(str(ICON_PATH)).pixmap(32, 32).isNull()
             report["window_visible"] = controller.widget.isVisible()
-            report["operator_row"] = controller.widget.network_rows["打包自检"]["operator"].text() == "—"
+            report["operator_row_hidden"] = controller.widget.network_rows["打包自检"]["operator_container"].isHidden()
             report["routes"] = dict(controller.widget.default_route_service._results)
             report["route_detection"] = (len(report["routes"]) == 2
                                           and all(value is not None for value in report["routes"].values()))
@@ -261,7 +264,8 @@ def smoke_test() -> int:
         controller.tray.hide()
     report["ok"] = status == 0 and all(report.get(key, False) for key in
                                      ("icon_rendered", "window_visible", "route_detection",
-                                      "background_query", "operator_row", "no_remaining_workers", "about_open_close",
-                                      "settings_open_close", "route_menu_readonly", "autostart_disabled"))
+                                      "background_query", "operator_row_hidden", "no_remaining_workers", "about_open_close",
+                                      "settings_open_close", "route_menu_readonly", "autostart_disabled",
+                                      "autostart_menu_hidden"))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1

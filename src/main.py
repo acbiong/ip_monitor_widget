@@ -32,6 +32,7 @@ def main() -> int:
     from PyQt5.QtWidgets import QApplication, QSystemTrayIcon
     from config import APP_ID, APP_NAME, ORG_NAME
     from tray_controller import TrayController
+    from autostart import AutostartManager
 
     QApplication.setOrganizationName(ORG_NAME)
     QApplication.setApplicationName(APP_ID)
@@ -39,6 +40,10 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     app.setStyle("Fusion")
+    try:
+        AutostartManager().repair_visibility()
+    except (OSError, ValueError) as error:
+        print(f"警告：无法修复自启动项的菜单隐藏状态：{error}", file=sys.stderr)
 
     if not QSystemTrayIcon.isSystemTrayAvailable():
         print(f"警告：当前桌面环境不支持{APP_NAME}的系统托盘图标。", file=sys.stderr)

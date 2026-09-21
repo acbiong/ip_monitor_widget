@@ -228,7 +228,8 @@ class OperatorWidgetTests(unittest.TestCase):
         self.assertEqual(text, "IPv4：中国电信\nIPv6：中国联通")
         self.assertIn("8.8.8.8", tooltip)
         service.reset_mock()
-        self.assertEqual(operator_text(["未连接公网"], service)[0], "—")
+        for addresses in (["未连接公网"], ["获取中…"], [], ["192.168.1.1"]):
+            self.assertEqual(operator_text(addresses, service)[0], "")
         service.get.assert_not_called()
 
     def test_multi_interface_live_labels_hotplug_and_font(self):
@@ -240,6 +241,7 @@ class OperatorWidgetTests(unittest.TestCase):
             store = SettingsStore(QSettings(str(Path(directory) / "settings.ini"), QSettings.IniFormat))
             widget = MonitorWidget(Mock(), lambda: interfaces, store)
             try:
+                self.assertTrue(all(rows["operator_container"].isHidden() for rows in widget.network_rows.values()))
                 signature = network_signature(interfaces)
                 widget.set_public_ips(signature, {"无线": {"status": "ok", "addresses": ["8.8.8.8"]},
                                                    "有线": {"status": "failed", "addresses": []}})
@@ -247,7 +249,8 @@ class OperatorWidgetTests(unittest.TestCase):
                 service._cache["8.8.8.8"] = (time.monotonic() + 3600, {"name": "中国电信", "holder": "CHINANET"})
                 service.result.emit()
                 self.assertEqual(widget.network_rows["无线"]["operator"].text(), "中国电信")
-                self.assertEqual(widget.network_rows["有线"]["operator"].text(), "—")
+                self.assertFalse(widget.network_rows["无线"]["operator_container"].isHidden())
+                self.assertTrue(widget.network_rows["有线"]["operator_container"].isHidden())
                 widget.set_public_ips(signature, {"无线": {"status": "ok", "addresses": ["1.1.1.1"]}})
                 self.assertEqual(widget.network_rows["无线"]["operator"].text(), "查询中…")
                 service.result.emit()
@@ -258,13 +261,25 @@ class OperatorWidgetTests(unittest.TestCase):
                 widget._fit_content()
                 self.app.processEvents()
                 for rows in widget.network_rows.values():
+                    if rows["operator_container"].isHidden():
+                        continue
                     label = rows["operator"]
                     self.assertGreaterEqual(label.width(), label.sizeHint().width())
                     self.assertGreaterEqual(label.height(), label.sizeHint().height())
+                previous_height = widget.height()
+                previous_content_height = widget.content.layout().totalSizeHint().height()
+                widget.set_public_ips(signature, {"无线": {"status": "failed", "addresses": []}})
+                self.app.processEvents()
+                self.assertTrue(widget.network_rows["无线"]["operator_container"].isHidden())
+                self.assertLessEqual(widget.height(), previous_height)
+                self.assertLess(widget.content.layout().totalSizeHint().height(), previous_content_height)
+                widget.set_public_ips(signature, {"无线": {"status": "ok", "addresses": ["8.8.8.8"]}})
+                self.app.processEvents()
+                self.assertFalse(widget.network_rows["无线"]["operator_container"].isHidden())
                 interfaces.pop()
                 widget.refresh_network_interfaces()
                 self.assertNotIn("operator:有线", widget.labels)
-                self.assertEqual(widget.network_rows["无线"]["operator"].text(), "等待公网 IP")
+                self.assertTrue(widget.network_rows["无线"]["operator_container"].isHidden())
             finally:
                 widget.close()
                 widget.deleteLater()

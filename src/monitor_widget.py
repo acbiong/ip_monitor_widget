@@ -71,6 +71,7 @@ class MonitorWidget(QFrame):
         self._configure_window()
         self.labels = {}
         self._applied_font_size = None
+        self._compact_network_layout = False
         self._build_ui()
         self._apply_font()
         self._apply_lock_state(self.values["locked"], save=False)
@@ -217,12 +218,18 @@ class MonitorWidget(QFrame):
             "仅显示通过本网卡查询的公网 IP。“未连接公网”表示本次未取得有效公网地址，"
             "DNS 或查询服务异常也可能导致此状态。")
         text, tooltip = operator_text(self.public_ips.get(name, []), self.operator_service)
-        self._add_value_row(row_container, f"operator:{name}", "运营商", text)
+        operator_container = QWidget()
+        operator_layout = QVBoxLayout(operator_container)
+        operator_layout.setContentsMargins(0, 0, 0, 0)
+        self._add_value_row(operator_layout, f"operator:{name}", "运营商", text)
+        row_container.addWidget(operator_container)
+        operator_container.setVisible(bool(text))
         self.labels[f"operator:{name}"].setToolTip(tooltip)
         self.network_rows[name] = {
             "local": self.labels[f"local:{name}"],
             "public": self.labels[f"public:{name}"],
             "operator": self.labels[f"operator:{name}"],
+            "operator_container": operator_container,
         }
 
     def _update_network_rows(self) -> None:
@@ -236,6 +243,10 @@ class MonitorWidget(QFrame):
             text, tooltip = operator_text(self.public_ips.get(interface["name"], []), self.operator_service)
             rows["operator"].setText(text)
             rows["operator"].setToolTip(tooltip)
+            container = rows["operator_container"]
+            if container.isHidden() == bool(text):
+                self._compact_network_layout = True
+            container.setVisible(bool(text))
         self._layout_timer.start(0)
 
     def _apply_font(self) -> None:
@@ -272,6 +283,9 @@ class MonitorWidget(QFrame):
         """按文字实际尺寸扩展窗体，并为屏幕边界和滚动条预留空间。"""
         if self._shutting_down:
             return
+        if self._compact_network_layout and preferred is None:
+            preferred = QSize(self.width(), 0)
+        self._compact_network_layout = False
         self.content.ensurePolished()
         layout = self.content.layout()
         layout.invalidate()
@@ -306,6 +320,8 @@ class MonitorWidget(QFrame):
         layout.setSpacing(max(1, round(4 * scale)))
         for index in range(layout.count()):
             child = layout.itemAt(index).layout()
+            if child is None and layout.itemAt(index).widget() is not None:
+                child = layout.itemAt(index).widget().layout()
             if child is not None:
                 MonitorWidget._scale_layout(child, scale)
 

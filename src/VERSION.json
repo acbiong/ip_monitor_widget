@@ -1,8 +1,8 @@
 {
   "product": "本机状态监视器",
-  "base_version": "0.10.0",
-  "build_number": 1,
-  "build_suffix": "build.20260921.1",
-  "version": "0.10.0+build.20260921.1",
-  "updated_at": "2026-09-21T02:26:09.398020+00:00"
+  "base_version": "0.10.1",
+  "build_number": 0,
+  "build_suffix": "",
+  "version": "0.10.1",
+  "updated_at": "2026-09-21T03:07:33.685718+00:00"
 }

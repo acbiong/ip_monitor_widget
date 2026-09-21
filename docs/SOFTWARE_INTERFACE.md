@@ -594,7 +594,7 @@ UTF-8 desktop Entry，Type=Application，Name 为软件名，Exec 为逐参数�
 ```mermaid
 flowchart TD
     A[本网卡独立公网 IP 查询] --> B{取得有效公网地址?}
-    B -->|否| C[公网显示未连接公网 / 运营商显示横线]
+    B -->|否| C[公网显示未连接公网 / 隐藏整个运营商行]
     B -->|是| D[立即显示公网 IP]
     D --> E[按公网 IP 去重 / 检查缓存]
     E -->|有效缓存| I[更新当前地址对应的运营商行]
@@ -616,7 +616,7 @@ flowchart TD
 | `OperatorService.get(address)` | 当前公网地址 | 缓存结果或查询中占位；不发同步网络请求 |
 | `OperatorService.result` | 无参数 Qt 信号 | 在 GUI 线程通知重新读取当前 IP 对应缓存，不把过期网卡对象带回界面 |
 | `OperatorService.shutdown()` | 无 | 停止排队、同时 kill 子进程，每进程最多等 200 ms |
-| `operator_display.operator_text(addresses, service)` | 单张网卡当前地址和服务 | `(text, tooltip)`；双栈分行，提示原始 ASN/登记名称/IP |
+| `operator_display.operator_text(addresses, service)` | 单张网卡当前地址和服务 | `(text, tooltip)`；双栈分行，提示原始 ASN/登记名称/IP；无公网地址时 text 为空，由窗体隐藏整行 |
 | `MonitorWidget.set_public_ips(signature, results)` | 原有公网查询协议 | 签名匹配后提交当前地址给运营商服务；原有公网 worker JSON 协议不变 |
 
 ### 后台 JSON 协议
@@ -638,3 +638,47 @@ flowchart TD
 - 网卡变化清空关注集合并取消任务；地址变化按新地址读取缓存；废弃地址结果不写回。不会把仍在旧地址下的运营商移到新地址。
 - 元数据请求可以走系统默认路由，因为查询参数已明确指定需查询的公网地址；此行为不代表从默认出口借用公网 IP。联网失败的网卡不触发归属请求。
 - 外部 API 无密钥，不新增依赖。只提交公网 IP/ASN；本机内网 IP、网卡名称和配置不提交。服务限流/故障、ASN 登记延迟均允许降级，不能保证任意网络始终可识别。
+
+## 20. 启动器隐藏与运营商行可见性（0.10.1）
+
+### 运营商行协议修正
+
+`operator_display.operator_text(addresses, service)` 对空列表、等待/失败文本及非公网地址返回空显示值，不调用 service.get。`MonitorWidget` 把标题和值放入独立 QWidget，按显示值是否为空同步隐藏/恢复，字体缩放递归覆盖该容器；可见性变化触发内容尺寸重算。无效地址不显示“—”或“等待公网 IP”。已有公网地址但归属查询失败仍显示“暂未识别”。
+
+### 自启动字段及接口
+
+| 场景 | NoDisplay | Hidden | 效果 |
+|---|---|---|---|
+| 启用 | true | false | 登录启动，开始屏幕隐藏 |
+| 禁用 | true | true | 不启动，菜单继续隐藏，覆盖系统同名项 |
+| 初次运行且无文件 | 不创建 | 不创建 | 默认关闭，不注册新应用 |
+
+| 接口 | 输入 | 输出/错误与副作用 |
+|---|---|---|
+| `AutostartManager(config_home=None, command=None, refresh_callback=None)` | 可选配置根目录、启动命令及刷新回调 | 显式注入配置目录时默认不通知真实桌面；测试可注入回调 |
+| `set_enabled(enabled)` | 目标布尔开关 | 原子写入自启动项并异步刷新；旧禁用文件也补齐 NoDisplay；无文件且关闭则不创建 |
+| `repair_visibility()` | 无 | 仅迁移已有文件的 NoDisplay，保留 Exec/Hidden/其他字段；幂等，已有正确标记仍刷新旧缓存 |
+| `_write_entry(entry)` | desktop 文本 | fsync + 原子替换成功后才通知缓存；写入失败不发刷新 |
+| `launcher_refresh.refresh_application_cache()` | 无 | 向当前会话已有 deepin 应用管理器异步发送重读请求，不等回复、不拉起缺席服务 |
+
+`main.py` 仅在普通 GUI 启动时调用迁移；后台查询、自检、冒烟和关于页面不修改真实启动项。迁移拒绝符号链接和无效格式，IO/解析错误向标准错误输出警告。自动迁移不启用原本关闭的启动项，也不使用当前运行路径覆盖用户原 Exec。
+
+### 桌面通知协议
+
+- Session D-Bus 服务/接口：`org.desktopspec.ApplicationManager1`。
+- 对象：`/org/desktopspec/ApplicationManager1`，方法 `ReloadApplications()`，无入参。
+- Qt `asyncCall`，超时上限 1500 ms，不在 GUI 线程同步等回复，`setAutoStartService(false)`。
+- 无会话总线或服务不存在时为尽力通知；磁盘上的 XDG 标记仍生效，桌面后续扫描或下次登录可读取。通知失败不回滚已成功保存的自启动状态。
+- 不创建 `~/.local/share/applications` 快捷方式，不调用卸载接口，不强杀应用管理器或桌面，不批量删除缓存。
+
+```mermaid
+flowchart TD
+    A[保存自启动设置] --> B[写 NoDisplay=true 与目标 Hidden]
+    B --> C[原子替换成功]
+    C --> D[异步 ReloadApplications]
+    D --> E[deepin 重新枚举应用并更新开始屏幕]
+    F[新版 GUI 启动] --> G{已有本软件启动项?}
+    G -->|否| H[不创建文件]
+    G -->|是| I[只修补隐藏标记，保持当前状态与命令]
+    I --> D
+```

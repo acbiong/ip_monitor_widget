@@ -93,7 +93,7 @@ class SettingsDialog(QDialog):
         self.public_ip_interval.setToolTip("定时重新查询各网卡的公网 IP；查询进行中时不重复启动。默认 60 秒。")
 
         self.autostart = QCheckBox("登录桌面后自动启动")
-        self.autostart.setToolTip("默认关闭，点击保存后生效；取消不改变启动项。移动程序后需重新启用。")
+        self.autostart.setToolTip("默认关闭，保存后生效；不在开始屏幕显示图标。取消不改变启动项，移动程序后需重新启用。")
         self.autostart_status = QLabel("点击保存后生效；取消不改变启动项。")
         try:
             self.autostart.setChecked(self.autostart_manager.is_enabled())

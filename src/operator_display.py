@@ -9,7 +9,7 @@ def operator_text(addresses, service) -> tuple[str, str]:
     explanation = ("按公网出口 ASN 登记名称识别，并非一定是本地宽带签约运营商。"
                    "VPN、代理或云出口可能不同；未收录的名称显示其他运营商。")
     if not public:
-        return ("—" if "未连接公网" in addresses else "等待公网 IP"), explanation
+        return "", explanation
     lines, details = [], [explanation]
     for address in public:
         result = service.get(address)

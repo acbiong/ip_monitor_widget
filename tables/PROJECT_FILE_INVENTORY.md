@@ -1,6 +1,6 @@
 # 项目文件与目录清单
 
-> 生成日期：2026-09-21；共 187 个文件夹、214 个文件。
+> 生成日期：2026-09-21；共 187 个文件夹、217 个文件。
 
 覆盖项目文件、资源、报告、发布产物和 Git 顶层目录；`.git` 内部对象及忽略的编译缓存不展开。
 
@@ -34,6 +34,7 @@
 | docs/test_reports | test_reports | 文件夹 | 测试执行结果和交付验证报告目录。 |
 | docs/test_reports/AUTOSTART_REPORT.md | AUTOSTART_REPORT.md | 文件 | 用户登录自启动测试、桌面格式及特殊路径解析验证报告。 |
 | docs/test_reports/GIT_ABOUT_REPORT.md | GIT_ABOUT_REPORT.md | 文件 | Git 元数据、关于页生命周期与构建快照验证结果。 |
+| docs/test_reports/LAUNCHER_VISIBILITY_REPORT.md | LAUNCHER_VISIBILITY_REPORT.md | 文件 | 运营商行隐藏及开始屏幕残留修复、真实清理和打包验证记录。 |
 | docs/test_reports/OPERATOR_REPORT.md | OPERATOR_REPORT.md | 文件 | 运营商识别离线回归、授权公网验证与单文件交付测试记录。 |
 | docs/test_reports/PACKAGE_SELF_TEST.json | PACKAGE_SELF_TEST.json | 文件 | 单文件无 GUI 依赖与内部入口自检报告。 |
 | docs/test_reports/PACKAGE_SMOKE_TEST.json | PACKAGE_SMOKE_TEST.json | 文件 | 隔离图形会话中的窗口和后台链路冒烟报告。 |
@@ -364,6 +365,7 @@
 | src/cpu_temperature.py | cpu_temperature.py | 文件 | 识别并读取 CPU 温度传感器。 |
 | src/default_route.py | default_route.py | 文件 | 读取 IPv4/IPv6 默认路由并选择默认出口网卡。 |
 | src/interface_dns.py | interface_dns.py | 文件 | 设备绑定 DNS 解析及限时系统解析回退，兼容 VPN DNS 代理。 |
+| src/launcher_refresh.py | launcher_refresh.py | 文件 | deepin 应用目录异步刷新，防止自启动项在开始屏幕留下缓存图标。 |
 | src/main.py | main.py | 文件 | 应用入口，处理 GUI、诊断、后台查询和版本命令行模式。 |
 | src/monitor_widget.py | monitor_widget.py | 文件 | 桌面监视器主窗口、布局、拖动、置底和内容刷新。 |
 | src/network.py | network.py | 文件 | 枚举在线网卡、过滤有效地址并生成网卡快照。 |
@@ -396,6 +398,7 @@
 | src/tests | tests | 文件夹 | 源代码回归测试；网络写操作均使用模拟对象。 |
 | src/tests/test_autostart.py | test_autostart.py | 文件 | 自启动开关、路径、原子文件提交和设置保存取消回归测试。 |
 | src/tests/test_interface_dns.py | test_interface_dns.py | 文件 | DNS 代理回退、超时预算和 HTTPS 网卡隔离回归测试。 |
+| src/tests/test_launcher_visibility.py | test_launcher_visibility.py | 文件 | 自启动菜单隐藏、旧文件迁移、异步刷新及配置隔离测试。 |
 | src/tests/test_operator.py | test_operator.py | 文件 | 运营商查询、中文别名、缓存隔离、进程超时与窗口布局离线回归。 |
 | src/tests/test_public_ip_interval.py | test_public_ip_interval.py | 文件 | 公网刷新间隔配置、持久化、预览回滚及自动更新回归测试。 |
 | src/tests/test_route_policy.py | test_route_policy.py | 文件 | 策略路由分类、默认接管保护和 Tailscale 兼容回归测试。 |
