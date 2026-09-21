@@ -1,5 +1,5 @@
 {
-  "application_version": "0.9.0+build.20260920.1",
+  "application_version": "0.10.0+build.20260921.1",
   "route_menu_readonly": true,
   "about_fields": true,
   "about_icon": true,
@@ -26,9 +26,10 @@
   "autostart_disabled": true,
   "icon_rendered": true,
   "window_visible": true,
+  "operator_row": true,
   "routes": {
     "ipv4": [
-      "enx6c1ff71d8ab6"
+      "wlp0s20f3"
     ],
     "ipv6": []
   },

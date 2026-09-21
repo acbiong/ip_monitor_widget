@@ -1,13 +1,13 @@
 # 单文件验证报告
 
-验证日期：2026-09-20
+验证日期：2026-09-21
 
 ## 验证对象
 
 - 文件：`dist/DesktopMonitor-deepin25-x86_64`
-- 应用版本：`0.9.0+build.20260920.1`
-- 构建源码分支：`feature/login-autostart`
-- 构建源码提交：`3dd3dc957a19465b892a6582e7d2f3f69d367679`（自动递增构建号之前工作树干净）
+- 应用版本：`0.10.0+build.20260921.1`
+- 构建源码分支：`feature/public-ip-operator`
+- 构建源码提交：`95160e9a5ab72c901637a3ac18401d100ead5365`（自动递增构建号之前工作树干净）
 - 目标：deepin 25、x86_64、glibc 2.38 或更高、X11 或可用的 XWayland
 - 传输包：`dist/DesktopMonitor-deepin25-x86_64.tar.gz`
 - 校验值：见 `dist/SHA256SUMS` 和 `docs/BUILD_MANIFEST.json`
@@ -16,6 +16,7 @@
 
 | 检查项 | 结果 | 说明 |
 |---|---|---|
+| 公网运营商 | 通过 | 22 项新增回归、无效地址内部入口、独立显示行、源码当前无线实测及冻结程序公开电信地址查询通过 |
 | 单文件依赖自检 | 通过 | `--self-test` 检查内置 Python、PyQt5、Qt xcb 插件、CA 证书、`ip` 工具和后台查询入口 |
 | Git/编译快照 | 通过 | 包内版本与 manifest 一致；临时目录且 PATH=/nonexistent 时不依赖目标 Git |
 | 关于页面 | 通过 | 从真实托盘动作连续两次打开/关闭，字段、图标、样式、固定尺寸、名称居中、标题仅“关于”和对象释放均通过 |
@@ -53,6 +54,7 @@
 - `window_visible: true`
 - `route_detection: true`
 - `background_query: true`
+- `operator_row: true`
 - `no_remaining_workers: true`
 - `ok: true`
 
@@ -88,3 +90,6 @@ chmod +x DesktopMonitor-deepin25-x86_64
 0.8.0 全部 70 项测试通过。公网地址变化使用模拟服务和加速 Qt 定时器验证，不修改真实公网出口。单文件新增间隔设置测试使用临时配置，无公网请求；详情见 PUBLIC_IP_INTERVAL_REPORT.md。
 
 0.9.0 全部 90 项回归通过。自启动仅在临时配置目录验证；系统 Gio 实际解析并启动特殊字符路径测试脚本成功。未注册用户真实自启动、未注销/重启桌面；详情见 AUTOSTART_REPORT.md。
+
+
+0.10.0 全部 112 项回归通过。新增运营商进程、缓存与双栈标签离线验证；当前无线出口真实查询识别为中国电信，另验证 IPv4/IPv6 公共测试地址。单文件自检和图形冒烟在临时目录、PATH=/nonexistent 且清空外部 Python/Qt 路径的环境中通过；SHA256 校验及传输包执行权限检查通过。归属结果来自公网出口 ASN，不保证等于签约宽带机构。未在另一台 deepin 电脑实机验证；详见 OPERATOR_REPORT.md。

@@ -1,22 +1,22 @@
 {
-  "application_version": "0.9.0+build.20260920.1",
-  "base_version": "0.9.0",
+  "application_version": "0.10.0+build.20260921.1",
+  "base_version": "0.10.0",
   "build_number": 1,
   "git": {
-    "branch": "feature/login-autostart",
-    "commit": "3dd3dc957a19465b892a6582e7d2f3f69d367679",
-    "commit_short": "3dd3dc957a19",
+    "branch": "feature/public-ip-operator",
+    "commit": "95160e9a5ab72c901637a3ac18401d100ead5365",
+    "commit_short": "95160e9a5ab7",
     "dirty": false
   },
   "build": {
     "git_snapshot_stage": "自动递增构建号之前（包括全部未提交修改）",
-    "built_at": "2026-09-20T10:43:59.584428+00:00",
+    "built_at": "2026-09-21T02:26:09.400909+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",
     "packager": "PyInstaller 6.22.3"
   },
-  "built_at": "2026-09-20T10:44:53.993323+00:00",
+  "built_at": "2026-09-21T02:26:58.958759+00:00",
   "target": "deepin 25 x86_64, X11 or available XWayland",
   "architecture": "x86_64",
   "python": "3.12.13",
@@ -35,8 +35,8 @@
     "VERSION": "25"
   },
   "sha256": {
-    "DesktopMonitor-deepin25-x86_64": "721d5929a86eb61fa88f8994b877146b933fb816e7261dcc56d4bf56b44d6100",
-    "DesktopMonitor-deepin25-x86_64.tar.gz": "5e2258e37a8daab90d1603f48f0c9bcf5e6e3e0433d6e218b8029968cd65c2bb"
+    "DesktopMonitor-deepin25-x86_64": "c449e0b3a17ac34d3fdd5a0bfa79032c2f5b56a245195640290f6c21f6d00ac4",
+    "DesktopMonitor-deepin25-x86_64.tar.gz": "7bb8ba42f4e8871c25f21caa8579ac8fe4c6e13cf03b82a7bac24f1fbf083fc7"
   },
   "packages": {
     "certifi": "2026.7.22",

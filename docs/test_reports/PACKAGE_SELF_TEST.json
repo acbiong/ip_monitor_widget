@@ -1,13 +1,13 @@
 {
-  "application_version": "0.9.0+build.20260920.1",
+  "application_version": "0.10.0+build.20260921.1",
   "git": {
-    "branch": "feature/login-autostart",
-    "commit": "3dd3dc957a19465b892a6582e7d2f3f69d367679",
-    "commit_short": "3dd3dc957a19",
+    "branch": "feature/public-ip-operator",
+    "commit": "95160e9a5ab72c901637a3ac18401d100ead5365",
+    "commit_short": "95160e9a5ab7",
     "dirty": false
   },
   "build": {
-    "built_at": "2026-09-20T10:43:59.584428+00:00",
+    "built_at": "2026-09-21T02:26:09.400909+00:00",
     "target": "deepin 25 x86_64, X11 or available XWayland",
     "architecture": "x86_64",
     "python": "3.12.13",
@@ -34,7 +34,8 @@
     "xcb_plugin": true,
     "bundled_route_tool": true,
     "background_entry": true,
-    "route_control_entry": true
+    "route_control_entry": true,
+    "operator_entry": true
   },
   "ok": true
 }

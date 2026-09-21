@@ -24,3 +24,14 @@
 - ASN 是公网出口归属，不保证等于签约宽带运营商。未收录机构、服务故障和限流均有明确降级。
 - 目标为本机 deepin 25 x86_64；未在另一台电脑或其他架构上验证。
 - 单文件构建及后续测试结果在本报告的交付验证节、`PACKAGE_SELF_TEST.json`、`PACKAGE_SMOKE_TEST.json` 和 `VALIDATION_REPORT.md` 中记录。
+
+
+## 交付验证
+
+- 构建命令：`SKIP_INSTALL=1 PYTHONDONTWRITEBYTECODE=1 ./src/packaging/build.sh`。
+- 构建版本：`0.10.0+build.20260921.1`；源码快照：`95160e9a5ab72c901637a3ac18401d100ead5365`；构建前 Git 工作树干净。
+- 新增 `operator_entry` 自检及 `operator_row` 图形检查均通过；退出后包含运营商在内的全部工作进程已回收。
+- 临时目录中清空外部 Python/Qt 环境、设 `PATH=/nonexistent`，单文件 `--self-test` 与 X11 `--smoke-test` 均通过。
+- 同样在不依赖系统 Python 的环境中，冻结入口 `--operator-lookup` 成功取得公开电信测试地址 ASN 4134 并输出“中国电信”。
+- `(cd dist && sha256sum -c SHA256SUMS)` 两项通过；传输包中文件保留 755 执行权限。
+- 本次未启动常驻新版窗口或关闭用户正在运行的旧版，退出旧版后运行新文件即可使用。
