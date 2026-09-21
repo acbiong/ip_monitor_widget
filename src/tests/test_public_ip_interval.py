@@ -61,7 +61,9 @@ class PublicIntervalTests(unittest.TestCase):
 
     def widget(self):
         with patch("monitor_widget.PublicIPService", FakePublicService), \
-                patch("monitor_widget.DefaultRouteService", FakeRouteService):
+                patch("monitor_widget.DefaultRouteService", FakeRouteService), \
+                patch("monitor_widget.OperatorService") as operator_class:
+            operator_class.return_value.get.return_value = {"name": "暂未识别", "holder": "", "asns": []}
             widget = MonitorWidget(Mock(), network_provider=lambda: [{"name": "fixture", "ips": ["192.0.2.1"]}],
                                    settings_store=self.store)
         self.app.processEvents()

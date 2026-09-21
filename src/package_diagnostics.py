@@ -68,6 +68,14 @@ def self_test() -> int:
                                           == {"ok": False, "message": "无效的默认出口操作"})
     except (OSError, ValueError, subprocess.TimeoutExpired):
         checks["route_control_entry"] = False
+    try:
+        result = subprocess.run(arguments + ["--operator-lookup"], input=b'{"address":"127.0.0.1"}',
+                                capture_output=True, timeout=15, check=False)
+        payload = json.loads(result.stdout)
+        checks["operator_entry"] = (result.returncode == 0 and payload["status"] == "failed"
+                                     and payload["address"] == "" and payload["name"] == "暂未识别")
+    except (OSError, ValueError, KeyError, subprocess.TimeoutExpired):
+        checks["operator_entry"] = False
     report["ok"] = all(checks.values())
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1
@@ -234,6 +242,7 @@ def smoke_test() -> int:
         def finish():
             report["icon_rendered"] = not QIcon(str(ICON_PATH)).pixmap(32, 32).isNull()
             report["window_visible"] = controller.widget.isVisible()
+            report["operator_row"] = controller.widget.network_rows["打包自检"]["operator"].text() == "—"
             report["routes"] = dict(controller.widget.default_route_service._results)
             report["route_detection"] = (len(report["routes"]) == 2
                                           and all(value is not None for value in report["routes"].values()))
@@ -245,13 +254,14 @@ def smoke_test() -> int:
         status = app.exec_()
         controller.widget.shutdown()
         report["no_remaining_workers"] = (not controller.widget.public_ip_service._active
+                                            and not controller.widget.operator_service._active
                                             and not controller.widget.default_route_service._active
                                             and controller.route_menu.service.process is None)
         controller.widget.close()
         controller.tray.hide()
     report["ok"] = status == 0 and all(report.get(key, False) for key in
                                      ("icon_rendered", "window_visible", "route_detection",
-                                      "background_query", "no_remaining_workers", "about_open_close",
+                                      "background_query", "operator_row", "no_remaining_workers", "about_open_close",
                                       "settings_open_close", "route_menu_readonly", "autostart_disabled"))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1

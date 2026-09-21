@@ -16,6 +16,9 @@ def main() -> int:
     if sys.argv[1:] == ["--public-ip-lookup"]:
         from public_ip_lookup import main as lookup_main
         return lookup_main()
+    if sys.argv[1:] == ["--operator-lookup"]:
+        from operator_lookup import main as operator_main
+        return operator_main()
     if sys.argv[1:] == ["--default-route-control"]:
         from route_switch_worker import main as route_main
         return route_main()

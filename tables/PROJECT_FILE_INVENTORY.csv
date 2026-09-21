@@ -27,6 +27,7 @@ docs/test_plan/TEST_PLAN.md,TEST_PLAN.md,文件,模块、集成、回归和交�
 docs/test_reports,test_reports,文件夹,测试执行结果和交付验证报告目录。
 docs/test_reports/AUTOSTART_REPORT.md,AUTOSTART_REPORT.md,文件,用户登录自启动测试、桌面格式及特殊路径解析验证报告。
 docs/test_reports/GIT_ABOUT_REPORT.md,GIT_ABOUT_REPORT.md,文件,Git 元数据、关于页生命周期与构建快照验证结果。
+docs/test_reports/OPERATOR_REPORT.md,OPERATOR_REPORT.md,文件,运营商识别离线回归、授权公网验证与单文件交付测试记录。
 docs/test_reports/PACKAGE_SELF_TEST.json,PACKAGE_SELF_TEST.json,文件,单文件无 GUI 依赖与内部入口自检报告。
 docs/test_reports/PACKAGE_SMOKE_TEST.json,PACKAGE_SMOKE_TEST.json,文件,隔离图形会话中的窗口和后台链路冒烟报告。
 docs/test_reports/PUBLIC_IP_DNS_REPORT.md,PUBLIC_IP_DNS_REPORT.md,文件,Tailscale DNS 环境公网 IP 查询修复、回归和实机验证记录。
@@ -359,6 +360,9 @@ src/interface_dns.py,interface_dns.py,文件,设备绑定 DNS 解析及限时系
 src/main.py,main.py,文件,应用入口，处理 GUI、诊断、后台查询和版本命令行模式。
 src/monitor_widget.py,monitor_widget.py,文件,桌面监视器主窗口、布局、拖动、置底和内容刷新。
 src/network.py,network.py,文件,枚举在线网卡、过滤有效地址并生成网卡快照。
+src/operator_display.py,operator_display.py,文件,运营商中文显示和悬停详情格式，双栈分行及断网降级。
+src/operator_lookup.py,operator_lookup.py,文件,公网地址归属查询工作进程：验证前缀/ASN、中文运营商映射及协议限长。
+src/operator_service.py,operator_service.py,文件,运营商异步队列、进程超时、地址去重缓存、旧结果隔离及退出清理。
 src/package_diagnostics.py,package_diagnostics.py,文件,单文件依赖自检、版本自检和图形冒烟测试入口。
 src/packaging,packaging,文件夹,PyInstaller 构建、版本管理、依赖审计和发布脚本目录。
 src/packaging/audit.py,audit.py,文件,审计单文件 ELF 依赖、动态库闭包和最低 GLIBC。
@@ -385,6 +389,7 @@ src/system_metrics.py,system_metrics.py,文件,采集 CPU、内存、磁盘、�
 src/tests,tests,文件夹,源代码回归测试；网络写操作均使用模拟对象。
 src/tests/test_autostart.py,test_autostart.py,文件,自启动开关、路径、原子文件提交和设置保存取消回归测试。
 src/tests/test_interface_dns.py,test_interface_dns.py,文件,DNS 代理回退、超时预算和 HTTPS 网卡隔离回归测试。
+src/tests/test_operator.py,test_operator.py,文件,运营商查询、中文别名、缓存隔离、进程超时与窗口布局离线回归。
 src/tests/test_public_ip_interval.py,test_public_ip_interval.py,文件,公网刷新间隔配置、持久化、预览回滚及自动更新回归测试。
 src/tests/test_route_policy.py,test_route_policy.py,文件,策略路由分类、默认接管保护和 Tailscale 兼容回归测试。
 src/tests/test_route_switch.py,test_route_switch.py,文件,默认出口规划、授权回滚、菜单与安全边界的隔离单元测试。

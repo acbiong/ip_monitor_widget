@@ -1,6 +1,6 @@
 # 本机状态监视器：软件原理与接口说明
 
-文档版本：4.0（目录、测试与版本管理）　更新日期：2026-09-20　编码：UTF-8
+文档版本：4.0（目录、测试与版本管理）　更新日期：2026-09-21　编码：UTF-8
 
 本文描述**当前源代码**，不是尚未实现的设计。接口包含 Python 调用、Qt 信号、子进程 JSON、HTTP 客户端与本地配置；本软件不提供 HTTP 服务器、开放端口或远程控制接口。
 
@@ -584,3 +584,57 @@ UTF-8 desktop Entry，Type=Application，Name 为软件名，Exec 为逐参数�
 
 `--smoke-test` 在临时目录注入 AutostartManager，新增 autostart_default_off、autostart_deferred、autostart_reset_default、autostart_cancelled、autostart_saved、autostart_disabled 布尔检查，任一失败影响总结果。
 自启动依赖桌面 XDG 登录会话，不代表系统开机登录前启动；不添加多实例管理。文件移动后原启动路径无效，需从新位置保存启用更新。自动测试不注册真实自启动或触发系统注销。
+
+## 19. 公网运营商协议（0.10.0）
+
+### 原理与流程
+
+公网 IP 仍由 `public_ip_lookup.py` 绑定网卡和源地址查询；运营商由 RIPEstat 的路由前缀与起源 ASN 推断。先验证查询 IP 属于返回前缀，再校验 ASN 登记响应编号。只对已收录机构显示具体中文名称，不根据本地 IP、网卡名称或默认出口猜测。
+
+```mermaid
+flowchart TD
+    A[本网卡独立公网 IP 查询] --> B{取得有效公网地址?}
+    B -->|否| C[公网显示未连接公网 / 运营商显示横线]
+    B -->|是| D[立即显示公网 IP]
+    D --> E[按公网 IP 去重 / 检查缓存]
+    E -->|有效缓存| I[更新当前地址对应的运营商行]
+    E -->|无缓存或过期| F[最多两个 QProcess 异步查询]
+    F --> G[network-info: IP → 路由前缀与 ASN]
+    G --> H[as-overview: ASN → 登记名称 → 中文别名]
+    H --> I
+    F -->|异常或 8 秒超时| J[暂未识别 / 保留公网 IP]
+```
+
+### 模块输入输出
+
+| 模块/接口 | 输入 | 输出与职责 |
+|---|---|---|
+| `operator_lookup.canonical_public_ip(value)` | 待验证地址 | 规范化全局单播 IP；非法/私网/保留/组播/作用域地址为空字符串 |
+| `operator_lookup.chinese_operator(holder)` | 原始 ASN 登记名称 | 中国电信/联通/移动、教育网、科技网或其他运营商；歧义不猜测 |
+| `operator_lookup.lookup_operator(value)` | 已确认公网 IP | 下述 JSON 字典；无效地址不发网络请求 |
+| `operator_service.OperatorService.request(addresses)` | 当前所有在线网卡已确认的公网 IP 列表 | 更新关注集合、取消废弃任务、按地址去重排队；不修改公网结果 |
+| `OperatorService.get(address)` | 当前公网地址 | 缓存结果或查询中占位；不发同步网络请求 |
+| `OperatorService.result` | 无参数 Qt 信号 | 在 GUI 线程通知重新读取当前 IP 对应缓存，不把过期网卡对象带回界面 |
+| `OperatorService.shutdown()` | 无 | 停止排队、同时 kill 子进程，每进程最多等 200 ms |
+| `operator_display.operator_text(addresses, service)` | 单张网卡当前地址和服务 | `(text, tooltip)`；双栈分行，提示原始 ASN/登记名称/IP |
+| `MonitorWidget.set_public_ips(signature, results)` | 原有公网查询协议 | 签名匹配后提交当前地址给运营商服务；原有公网 worker JSON 协议不变 |
+
+### 后台 JSON 协议
+
+源码入口为 `python src/main.py --operator-lookup`，冻结入口为单文件 `--operator-lookup`。标准输入例如 `{"address":"8.8.8.8"}`，最多读取 4097 字节。标准输出 UTF-8 单份 JSON：
+
+```json
+{"address":"<规范化 IP>","status":"ok","name":"中国电信","holder":"<原始登记名称>","asns":[4134]}
+```
+
+该示例仅说明结构，不表示测试地址属于电信。失败为 `status="failed"`、`name="暂未识别"`、空 holder/asns；非法输入的 address 为空。正常处理失败也退出 0，父进程根据 status 判断，非零退出/崩溃/超时均降级。父进程再次验证地址、状态、ASN、holder，并自行映射名称，拒绝错误地址或任意返回名称。
+
+### 外部协议及资源限制
+
+- HTTPS GET `https://stat.ripe.net/data/network-info/data.json?resource=<IP>`：要求顶层 `status=ok`，`data.prefix` 包含该 IP，`data.asns` 为有效 ASN 列表。
+- 单一 ASN 时 GET `https://stat.ripe.net/data/as-overview/data.json?resource=AS<编号>`：要求 `data.resource` 与编号相同，`data.holder` 非空且不超过 512 字符。多个 ASN 不任意挑选，显示“多运营商（归属不唯一）”。
+- TLS 验证开启、禁止 HTTP 重定向、不继承环境代理；连接/读取各 2 秒；每响应最多 64 KiB，子进程输出最多 8 KiB；父进程总看门狗 8 秒覆盖阻塞 DNS。
+- 最多 2 个工作进程，重复公网地址只查询一次；缓存最多 128 条，成功 3600 秒、失败 60 秒，过期后下一次公网结果触发更新，不另建高频轮询。
+- 网卡变化清空关注集合并取消任务；地址变化按新地址读取缓存；废弃地址结果不写回。不会把仍在旧地址下的运营商移到新地址。
+- 元数据请求可以走系统默认路由，因为查询参数已明确指定需查询的公网地址；此行为不代表从默认出口借用公网 IP。联网失败的网卡不触发归属请求。
+- 外部 API 无密钥，不新增依赖。只提交公网 IP/ASN；本机内网 IP、网卡名称和配置不提交。服务限流/故障、ASN 登记延迟均允许降级，不能保证任意网络始终可识别。

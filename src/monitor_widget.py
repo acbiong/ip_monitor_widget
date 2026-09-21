@@ -26,6 +26,8 @@ from config import APP_NAME, DEFAULT_SETTINGS, ICON_PATH
 from default_route import DefaultRouteService
 from network import get_network_interfaces
 from public_ip_service import PublicIPService
+from operator_service import OperatorService
+from operator_display import operator_text
 from settings_dialog import SettingsDialog
 from settings_store import SettingsStore, normalize_settings
 from system_metrics import SystemMetricsSampler
@@ -50,6 +52,8 @@ class MonitorWidget(QFrame):
         self.metrics_sampler = SystemMetricsSampler()
         self.public_ip_service = PublicIPService(self)
         self.public_ip_service.result.connect(self.set_public_ips)
+        self.operator_service = OperatorService(self)
+        self.operator_service.result.connect(self._update_network_rows)
         self.default_route_service = DefaultRouteService(self)
         self.default_route_service.result.connect(self.set_default_routes)
         self._shutting_down = False
@@ -172,7 +176,7 @@ class MonitorWidget(QFrame):
         """根据当前在线网卡重建网络信息区域。"""
         # 删除动态标签引用，防止反复插拔网卡时保留已销毁的 Qt 控件。
         self.labels = {key: label for key, label in self.labels.items()
-                       if not key.startswith(("local:", "public:"))}
+                       if not key.startswith(("local:", "public:", "operator:"))}
         self._clear_layout(self.network_layout)
         self.network_rows = {}
         if not self.network_interfaces:
@@ -212,9 +216,13 @@ class MonitorWidget(QFrame):
         self.labels[f"public:{name}"].setToolTip(
             "仅显示通过本网卡查询的公网 IP。“未连接公网”表示本次未取得有效公网地址，"
             "DNS 或查询服务异常也可能导致此状态。")
+        text, tooltip = operator_text(self.public_ips.get(name, []), self.operator_service)
+        self._add_value_row(row_container, f"operator:{name}", "运营商", text)
+        self.labels[f"operator:{name}"].setToolTip(tooltip)
         self.network_rows[name] = {
             "local": self.labels[f"local:{name}"],
             "public": self.labels[f"public:{name}"],
+            "operator": self.labels[f"operator:{name}"],
         }
 
     def _update_network_rows(self) -> None:
@@ -225,6 +233,9 @@ class MonitorWidget(QFrame):
                 continue
             rows["local"].setText("\n".join(interface["ips"]))
             rows["public"].setText("\n".join(self.public_ips.get(interface["name"], ["获取中…"])))
+            text, tooltip = operator_text(self.public_ips.get(interface["name"], []), self.operator_service)
+            rows["operator"].setText(text)
+            rows["operator"].setToolTip(tooltip)
         self._layout_timer.start(0)
 
     def _apply_font(self) -> None:
@@ -423,6 +434,7 @@ class MonitorWidget(QFrame):
         self.network_interfaces = interfaces
         self.network_signature = signature
         self.public_ips = {item["name"]: ["获取中…"] for item in interfaces}
+        self.operator_service.request([])
         self._rebuild_network_rows()
         self._apply_font()
         self.fetch_public_ip()
@@ -444,6 +456,7 @@ class MonitorWidget(QFrame):
             addresses = result["addresses"]
             self.public_ips[name] = (addresses if result["status"] == "ok" and addresses
                                      else ["未连接公网"])
+        self.operator_service.request([address for addresses in self.public_ips.values() for address in addresses])
         self._update_network_rows()
 
     def update_metrics(self) -> None:
@@ -529,6 +542,7 @@ class MonitorWidget(QFrame):
         self._layer_timer.stop()
         self._save_settings()
         self.public_ip_service.shutdown()
+        self.operator_service.shutdown()
         self.default_route_service.shutdown()
 
     def closeEvent(self, event) -> None:
